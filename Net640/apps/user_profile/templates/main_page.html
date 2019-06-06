@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}My page{% endblock %}
+{% load static %}
+{% block css_rules %}
+<link rel='stylesheet' href='{% static 'user_profile/css/main_page.css' %}' />
+<link rel='stylesheet' href="{% static 'vendor/css/fontawesome/all.css' %}" />
+{% endblock %}
+
+{% block content %}
+{% if user_login %}
+<div class="container">
+  <div class="row mt-2 no_link_behaviour">
+    <a class="col-8 col-md-2 mr-2 menu__item" href="/my_images/">My images</a>
+    <a class="col-8 col-md-2 menu__item" href="/profile">My profile</a>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12 col-md-8 mx-auto">
+      <form method="post">
+        {% csrf_token %}
+        {{ post_form }}
+        <input type="submit" class ="btn btn-secondary w-100" value="Send Post"> 
+      </form>
+    </div>
+  </div>
+</div>
+
+
+    {% if posts|length > 0 %}
+
+      <div class="container mt-5">
+          {% for post in posts %}
+            <div class="row posts_list__item w-75 mx-auto">
+              <div class="col-12 col-md-8 mx-auto">
+                <div class="row">
+                  <div class="col-1 text-right align-self-right">
+                    {#TODO only like or dislike#}
+                    <i class="fas fa-thumbs-up" data-action-vote="{% url 'user_post_action' post.id 'like' %}"></i>
+                    <i class="fas fa-thumbs-down" data-action-vote="{% url 'user_post_action' post.id 'like' %}"></i>
+                  </div>
+                  <div class="col-10">
+                    <div>
+                      {{post.content}}
+                    </div>
+                    <div class="posts_list__item_author_and_date">
+                      {{post.author}}
+                      {{post.date | date:"M d, Y"}}
+                    </div>
+                  </div>
+                  <div class="col-1 text-right align-self-right">
+                    <i class="far fa-trash-alt" data-action-vote="{% url 'user_post_action' post.id 'remove' %}"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+      </div>
+    {% else %}
+    {% endif %}
+
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% load static %}
+{#<script type="text/javascript" src='{% static 'user_profile/js/main.js' %}'></script>#}
+{% endblock %}

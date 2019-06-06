@@ -1,0 +1,41 @@
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% load static %}
+    <link rel='stylesheet' href='{% static 'css/base.css' %}' />
+    <link rel='stylesheet' href='{% static 'vendor/css/bootstrap/bootstrap.min.css' %}' />
+    <title>Login</title>
+  </head>
+  <body class="body">
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col-12 col-md-6 mx-auto">
+            <form method = 'post'>
+              {% csrf_token %}
+                <fieldset class="form-group">
+                  <input type = "text" placeholder = "Username" name = "username" class="form-control">
+                  <br>
+                  <input type = "password" placeholder = "Password" name = "password" class="form-control">
+                  <br>
+                </fieldset>
+
+                <input type ="submit" class = "btn btn-secondary w-100" value = "Login">
+            </form>
+               <div id="pre_submit"></div>
+
+                {% if login_failed %}
+                    <div class="row justify-content-center">
+                        <div class="failed_animation">
+                            <p>Email or password is incorrect. Please try again.</p>
+                        </div>
+                    </div>
+                {% endif %}
+        </div>
+      </div>
+      <div class="row">
+        <a class = "col-12 col-md-6 mt-3 mx-auto" href="/signup">I am new user</a>
+      </div>
+    </div>
+  </body>
+</html>

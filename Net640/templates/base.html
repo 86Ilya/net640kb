@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% load static %}
+    <link rel='stylesheet' href='{% static 'css/base.css' %}' />
+    <link rel='stylesheet' href='{% static 'vendor/css/bootstrap/bootstrap.min.css' %}' />
+    {% block css_rules %}
+    {% endblock %}
+    <title>{% block title %}640kb{% endblock %}</title>
+  </head>
+  <body class="body">
+  
+    {% block header %}
+      {% if user %}
+      <div class="container" id="vue_base_app">
+        <div class="row mt-1 no_link_behaviour">
+            <a href="/friends" class="col-xs-12 col-md-4 p-3 menu__item">Friends</a>
+            <a href="#" class="col-xs-12 col-md-4 p-3 menu__item">News</a>
+            <a href="/" class="col-xs-12 col-md-4 p-3 menu__item">My Page(<b>{{user.username}}</b>) [[user_page_size_formatted]]Kb</a>
+            <div class="d-none" id="initial_user_page_size">{{user.get_size}}</div>
+
+        </div>
+      </div>
+      {% endif %}
+
+    {% endblock %}
+
+    {% block content %}
+
+    {% endblock %}
+  </body>
+
+
+{% if user %}
+  <script type="text/javascript" src='{% static "js/update_flow.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/reconnecting-websocket.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "vendor/js/vue.js" %}'></script>
+{% endif %}
+{% block scripts %}
+{% endblock %}
+
+</html>

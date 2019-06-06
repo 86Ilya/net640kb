@@ -1,0 +1,57 @@
+/*@import url("friends.css");*/
+/*@import url("header.css");*/
+/*@import url("user_view.css");*/
+/*@import url("chat.css");*/
+/*@import url("main_page.css");*/
+/*@import url("update_personal_data.css");*/
+
+
+.hide {
+  display: none;
+}
+
+.show {
+  
+}
+
+.simple_button {
+  border: 1px solid black;
+  background-color: white;
+  box-shadow: 5px 5px 5px #a6a6a6;
+  display: inline-block;
+  margin:0 auto;
+  padding: 10px;
+  margin-left: 5%;
+  margin-top: 20px;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.simple_button:active {
+  box-shadow: 0 2px 0 #a6a6a6;
+  top: 3px;
+}
+
+.simple_square {
+  border: 1px solid black;
+  background-color: white;
+  box-shadow: 5px 5px 5px #a6a6a6;
+  display: inline-block;
+  margin:0 auto;
+  padding: 10px;
+  margin-left: 60px;
+  margin-top: 20px;
+  color: black;
+}
+
+.div_align_right {
+  margin-right: 60px;
+  float: right;
+}
+
+.body {
+  /* margin-left: 60px; */
+  margin:20px auto;
+
+}

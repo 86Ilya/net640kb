@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+
+{% block title %}My friends{% endblock %}
+
+{% block content %}
+
+<form action="." method="post" id="friends__form">
+  {% csrf_token %}
+</form>
+
+
+<div id="vue_friends_lists_app">
+
+  <div v-if="friends_waiting_for_accept_list.length > 0" class="container">
+    <div class="row">
+      <div class="col-12 mt-5">
+        You have requests from:
+      </div>
+    </div>
+
+    <div v-for="somebody in friends_waiting_for_accept_list" class="row mt-1"> 
+        <div class="col-8 col-md-2">
+          <div class="h4">[[somebody.username]]</div>
+        </div>
+        <div v-on:click="accept" class="col-2 col-md-1 btn btn-secondary" :data-user_id="somebody.id" :data-relationship="1">
+          Accept
+        </div>
+        <div v-on:click="cancel" class="col-2 col-md-1 ml-1 btn btn-danger" :data-user_id="somebody.id" :data-relationship="1">
+          Cancel
+        </div>
+    </div>
+  </div>
+
+
+  <div v-if="friends_sent_requests_list.length > 0" class="container mt-5">
+    <div class="row">
+      <div class="col-12">
+        Your requests:
+      </div>
+    </div>
+    <div v-for="somebody in friends_sent_requests_list" class="row mt-1">
+        <div class="col-8 col-md-2">
+          {#<div class="h4">[[somebody.username]]</div>#}
+          <a :href='"/id"+somebody.id' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
+        </div>
+        <div v-on:click="cancel" class="col-4 col-md-1 btn btn-danger" :data-user_id="somebody.id">
+         Cancel 
+        </div>
+    </div>
+  </div>
+
+  <div v-if="friends_list.length > 0" class="container mt-2">
+    <div class="row">
+      <div class="col-12">
+      Your friends:
+      </div>
+    </div>
+
+    <div v-for="somebody in friends_list" class="row no_link_behaviour mt-1">
+        <a :href='"/id"+somebody.id' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
+        <div class="col-4 col-md-1 btn btn-danger"  v-on:click="cancel" :data-user_id="somebody.id" :data-relationship="2">
+            Remove
+        </div>
+    </div>
+  </div>
+  {#<div v-else class="container">#}
+      {#<div class="row">#}
+          {#<div class="h4">You have no friends!</div>#}
+      {#</div>#}
+  {#</div>#}
+</div>
+
+{% load static %}
+<script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
+<script type="text/javascript" src='{% static "friends/js/friends.js" %}'></script>
+{% endblock %}

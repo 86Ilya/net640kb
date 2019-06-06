@@ -1,0 +1,7 @@
+export SECRET_KEY=
+export DATABASE_PASSWORD=
+export DATABASE_USER=
+export DATABASE_NAME=
+export DATABASE_HOST=
+export REDIS_HOST=
+export REDIS_PORT=

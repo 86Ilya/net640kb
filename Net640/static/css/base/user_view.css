@@ -1,0 +1,18 @@
+.user_view__simple_button {
+  border: 1px solid black;
+  background-color: white;
+  box-shadow: 5px 5px 5px #a6a6a6;
+  display: inline-block;
+  margin:0 auto;
+  padding: 10px;
+  margin-left: 60px;
+  margin-top: 20px;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+
+}
+
+/* .user_view__simple_button a {
+
+} */

@@ -1,0 +1,43 @@
+version: '2.0'
+
+volumes:
+  postgres_data:
+services:
+  db:
+    image: postgres
+  redis:
+    restart: always
+    image: redis
+    #ports:
+        #- "6379:6379"
+    expose:
+      - "6379"
+  web:
+    build:
+         context: .
+         dockerfile: ./docker/web_service/Dockerfile
+    command: /app/docker/web_service/fire.sh
+    #volumes:
+      #- .:/code
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      - db
+      - redis
+
+  nginx:
+    restart: always
+    image: nginx:latest
+    expose:
+      - 8080
+
+    ports: 
+      - "80:8080"
+    depends_on:
+          - web
+    volumes:
+      - ./static:/srv/www/net640/static
+      - ./media:/srv/www/net640/media
+      - ./logs:/srv/www/net640/logs
+      - ./docker/nginx:/etc/nginx/conf.d

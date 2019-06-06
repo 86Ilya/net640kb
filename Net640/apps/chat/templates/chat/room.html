@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}User:  {{user.username}}{% endblock %}
+{% load static %}
+{% block css_rules %}
+<link rel='stylesheet' href='{% static 'chat/css/chat.css' %}' />
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  <div class="row mt-2">
+    <div class="col-12 mx-auto">You are talking with: <b>{{user_to_chat}}</b></div>
+  </div>
+
+
+  <div class="row chat_window" id="chat_window"> 
+    <div class="col-12 col-md-8 mx-auto">
+      <table class="table" id="chat_table">
+        <tbody>
+          {% for message in messages %}
+            <tr class="chat__table_message">
+              <td class="chat__table_message_time">{{ message.formatted_timestamp }}</td>
+              <!-- <td class="chat__table_message_author">{{ message.author }}</td> -->
+              {% ifequal user.id message.author.id %}
+              <td class="chat__table_message_content chat__table_message_written_by_owner" >{{ message.content }}</td>
+              {% else %}
+              <td class="chat__table_message_content" >{{ message.content }}</td>
+              {% endifequal %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {#send message form#}
+  {#<div class="row fixed-bottom">#}
+  <div class="row text-center">
+    <div class="col-12 mx-auto">
+      <form class="mx-auto" method="post" id="send_message_form">
+        {% csrf_token %}
+        <textarea name="content" class="w-75" id="send_message_form_text"></textarea>
+        <div class="btn btn-secondary w-75" id="send_message_btn">Send Message</div>
+        <input type="hidden" id="room_name" value="{{room_name}}" />
+        <input type="hidden" id="master_id" value="{{user.id}}" />
+        <input type="hidden" id="master_name" value="{{user.username}}" />
+      </form>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{#<script type="text/javascript" src='{% static "js/reconnecting-websocket.min.js" %}'></script>#}
+<script type="text/javascript" src='{% static "chat/js/chat.js" %}'></script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}User:  {{user.username}}{% endblock %}
+
+{% block content %}
+
+
+
+<div id="vue_user_view_app" class="">
+
+  <!-- default values -->
+  <div id="default_values"
+       data-relationship_status="{{relationship_status}}"
+       data-page_owner_username="{{page_owner_username}}"
+       data-page_owner_id="{{page_owner_id}}"
+       data-page_owner_size="{{page_owner_size}}">
+
+  </div>
+  <!-- end of default values -->
+
+  <form action="." method="post" id="user_view__form">
+      {% csrf_token %}
+  </form>
+  <div class="container">
+    <div>
+      <div class="row no_link_behaviour">
+        <div class="col-12 mt-2 simple_square">
+          User: [[page_owner_username]] Status: [[relationship_descr]] 
+              <span v-if="relationship_status == -1" class="">
+                  <div class="btn btn-secondary"  v-on:click="send_request_for_friends" :data-user_id="page_owner_id">
+                    Add [[page_owner_username]] to friends
+                  </div>
+              </span>
+          Page size: [[page_owner_size]]
+        </div>
+        <a :href='"/id"+page_owner_id+"/chat"' v-if="friend" class="col-12 col-md-2 mt-2 simple_square text-center">Chat</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div v-if="posts.length > 0" class="container mt-5">
+        <div v-for="post in posts" class="posts_list__item row">
+          <div class="col-12 col-md-8 mx-auto">
+              <div class="posts_list__item_content">
+                [[post.content]]
+              </div>
+              <div class="posts_list__item_author_and_date">
+                [[post.author]]
+                [[post.date]]
+              </div>
+          </div>
+        </div>
+  </div>
+
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% load static %}
+<script type="text/javascript" src='{% static "vendor/js/vue.js" %}'></script>
+<script type="text/javascript" src='{% static "friends/js/user_view.js" %}'></script>
+<script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
+
+{% endblock %}

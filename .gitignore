@@ -1,0 +1,5 @@
+media/
+helpers
+.env
+logs/
+__pycache__

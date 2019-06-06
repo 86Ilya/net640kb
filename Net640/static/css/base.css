@@ -1,0 +1,118 @@
+.menu__item{
+    border: 1px solid black;
+    background-color: white;
+    box-shadow: 5px 5px 5px #a6a6a6;
+    text-align: center;
+    /*outline: 1px solid black;*/
+    /*outline-offset: -2px;*/
+}
+
+.menu__item:hover {
+    background-color: #d9d9d9;
+    transition: background-color 1s;
+}
+
+.posts_list__item {
+    padding: 5px;
+}
+
+.posts_list__item:nth-child(odd) {
+    background: #f2f2f2;
+}
+
+.posts_list__item:nth-child(even) {
+    background: white;
+}
+
+.posts_list__item_content {
+    font-size: large;
+}
+
+.posts_list__item_author_and_date {
+    font-size: small;
+    text-align: right;
+}
+
+.no_link_behaviour a:link, a:visited, a:active{
+    text-decoration: none;
+    color: #000000;
+    cursor: pointer;
+}
+
+.no_link_behaviour a:hover{
+    color: #000000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.no_link_behaviour a:focus{
+    color: #000000;
+    outline: 0px solid transparent;
+}
+
+.simple_button {
+  border: 1px solid black;
+  background-color: white;
+  box-shadow: 5px 5px 5px #a6a6a6;
+  display: inline-block;
+  margin:0 auto;
+  padding: 10px;
+  margin-left: 5%;
+  margin-top: 20px;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.simple_button:active {
+  box-shadow: 0 2px 0 #a6a6a6;
+  top: 3px;
+}
+
+.simple_square {
+  border: 1px solid black;
+  background-color: white;
+  box-shadow: 5px 5px 5px #a6a6a6;
+  display: inline-block;
+  /*margin:0 auto;*/
+  padding: 10px;
+  /*margin-left: 60px;*/
+  /*margin-top: 20px;*/
+  color: black;
+}
+
+.btn{
+  border-radius: 0 !important;
+}
+
+
+@keyframes fadeOut {
+    100% {
+        /* display: none; */
+        opacity: 0;
+    }
+    0% {
+        /* display: block; */
+        opacity: 1;
+    }
+}
+
+
+@keyframes warning{
+  0%, 49% {
+    background-color: red;
+  }
+  50%, 100% {
+    background-color: white;
+  }
+}
+
+
+.failed_animation {
+    margin: 20px auto 0;
+    text-align: justify;
+    color: red;
+    -webkit-animation: 5s ease 0s normal forwards 1 fadeOut;
+    animation: 5s ease 0s normal forwards 1 fadeOut;
+}
+
