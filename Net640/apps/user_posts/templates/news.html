@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}News{% endblock %}
+{% load static %}
+{% block css_rules %}
+<link rel='stylesheet' href="{% static 'vendor/css/fontawesome/all.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row mt-2 no_link_behaviour">
+    <a class="col-8 col-md-2 mr-2 menu__item" href="/my_images/">My images</a>
+    <a class="col-8 col-md-2 menu__item" href="/profile">My profile</a>
+  </div>
+</div>
+
+<div id="vue_user_news_app" class="">
+
+  <!-- default values -->
+  <div id="default_values" class="d-none"
+       data-action-url="{% url 'user_post_action' %}"
+       >
+  </div>
+  <!-- end of default values -->
+
+    <div v-if="posts.length > 0" class="container mt-5">
+        <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
+              <div class="col-12 col-md-8 mx-auto">
+                <div class="row mt-3">
+                  <div class="col-2">
+                    <div class="badge badge-dark">[[post.rating]]</div>
+
+                    <div v-if="post.user_has_like">
+                      <i class="fas fa-heart d-inline" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
+                    </div>
+                    <div v-else>
+                      <i class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
+                    </div>
+                  </div>
+
+                  <div class="col-8">
+                    <div>
+                      [[post.content]]
+                    </div>
+                    <div class="posts_list__item_author_and_date">
+                      [[post.author]]
+                      [[post.date]]
+                    </div>
+                  </div>
+                  <div class="col-2">
+                    <a v-bind:href=post.author_page>
+                      <img v-bind:src="post.author_thumbnail_url"/>
+                    </a>
+                  </div>
+
+                </div>
+              </div>
+
+          </div>
+        </div>
+  </div>
+
+
+</div>
+
+<form method="post" class="d-none">
+    {% csrf_token %}
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src='{% static "vendor/js/vue.js" %}'></script>
+<script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
+<script type="text/javascript" src='{% static 'user_posts/js/news.js' %}'></script>
+
+
+{% endblock %}
