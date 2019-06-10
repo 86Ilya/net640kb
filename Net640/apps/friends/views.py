@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-# from django.core.exceptions import ObjectDoesNotExist
 
 from Net640.apps.user_posts.models import Post
 
@@ -39,7 +37,6 @@ def friends_view_post_action(master, post):
 
     if user_id:
         person = User.objects.get(pk=user_id)
-    # breakpoint()
     # Получим список друзей и заявок
     if person and action == "cancel":
         result = master.cancel(person)
@@ -53,9 +50,6 @@ def friends_view_post_action(master, post):
             'friends_list': friends,
             'friends_waiting_for_accept_list': waiting_for_accept,
             'friends_sent_requests_list': sended_requests}
-        print(result)
-        # print JsonResponse(result)
-        # return result
     else:
         # incorrect operation
         pass
@@ -66,7 +60,6 @@ def friends_view_post_action(master, post):
 def user_view(request, user_id):
     master = User.objects.get(pk=request.user.id)
     page_owner = User.objects.get(pk=user_id)
-    # breakpoint()
     relationship_status = master.check_relationship(page_owner)
     if request.method == "POST" and request.POST.get("action", False):
         result = user_view_post(master, page_owner, request.POST)
@@ -88,12 +81,20 @@ def user_view_post(master, page_owner, post):
     if action == "add":
         # Отправим запрос на добавление пользователя в друзья
         result = master.accept(page_owner)
-    # Получим информацию о пользователе (статус отношении, посты) 
+    # Получим информацию о пользователе (статус отношении, посты)
     elif action == "get_user_info":
         relationship_status = master.check_relationship(page_owner)
         posts = []
         for post in Post.objects.filter(author=page_owner)[:10]:
-            posts.append({'author': post.author.username, 'date': post.date, 'content': post.content})
+                posts.append({'content': post.content,
+                              'user_has_like': post.has_like(master),
+                              'rating': round(post.get_rating(), 1),
+                              'author': post.author.username,
+                              'author_id': post.author.id,
+                              'date': post.date.strftime('%b %d, %Y'),
+                              'id': post.id,
+                              'author_thumbnail_url': post.author.get_thumbnail_url(), })
+            # posts.append({'author': post.author.username, 'date': post.date, 'content': post.content})
         result = {'relationship_status': relationship_status,
                   'posts': posts,
                   'page_owner': {'id': page_owner.id, 'username': page_owner.username},

@@ -1,26 +1,19 @@
 import os
 import logging
-# from datetime import datetime
+from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
-# from asgiref.sync import async_to_sync
 
-from django.db import models
-from django.db import connection, transaction
-# from django.db.models.signals import pre_save
-# from django.dispatch import receiver
-# from django.utils import timezone
-# from django.core.exceptions import ObjectDoesNotExist
+from django.db import models, connection
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 
 from Net640.settings import STATIC_URL
-# from Net640.settings import MAX_PAGE_SIZE
-# from Net640.errors import ERR_EXCEED_LIMIT, NotEnoughSpace
-# from Net640.apps.user_profile.helpers import GetSizeMixin
+from Net640.apps.images.models import Image, user_avatar_path
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
+DEFAULT_THUMBNAIL_URL = os.path.join(STATIC_URL, 'img', 'default_thumbnail.png')
 
 RELATIONSHIP_REQUEST_HAS_SENT = 0
 RELATIONSHIP_WAITING_FOR_ACCEPT = 1
@@ -35,16 +28,6 @@ RELATIONSHIP_STATUSES = (
 )
 
 CHANNEL_LAYER = get_channel_layer()
-
-
-def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/<id>/images/<filename>
-    return 'id{0}/images/{1}'.format(instance.user.id, filename)
-
-
-def user_avatar_path(net_user, filename):
-    # file will be uploaded to MEDIA_ROOT/<id>_avatar.<filename extension>
-    return '{}_avatar.{}'.format(net_user.id, filename.split(".")[-1])
 
 
 class GetSizeMixin:
@@ -66,6 +49,12 @@ class GetSizeMixin:
         posts_size = cursor.fetchone()[0]
         if posts_size:
             size += posts_size
+        # posts likes
+        cursor.execute('select sum(length) from (SELECT octet_length(t.*::text) as "length" FROM\
+                           user_posts_post_likes AS t WHERE t.user_id=1)user_posts_likes;', [id, ])
+        posts_likes_size = cursor.fetchone()[0]
+        if posts_likes_size:
+            size += posts_likes_size
         # messages
         cursor.execute('select sum(length) from (\
             SELECT octet_length(t.*::text) as "length" FROM chat_message AS t\
@@ -75,19 +64,23 @@ class GetSizeMixin:
             size += messages_size
 
         # images
-        # breakpoint()
         images = Image.objects.filter(user_id=id)
         for image_obj in images:
             size += image_obj.image.size
 
         # images additional info in DB
         cursor.execute('select sum(length) from (\
-            SELECT octet_length(t.*::text) as "length" FROM user_profile_image AS t\
+            SELECT octet_length(t.*::text) as "length" FROM images_image AS t\
             WHERE t.user_id=%s)images_additional_info_sum', [id, ])
         images_info_size = cursor.fetchone()[0]
         if images_info_size:
             size += images_info_size
-
+        # images likes
+        cursor.execute('select sum(length) from (SELECT octet_length(t.*::text) as "length" FROM\
+                           images_image_likes AS t WHERE t.user_id=1)user_images_likes;', [id, ])
+        images_likes_size = cursor.fetchone()[0]
+        if images_likes_size:
+            size += images_likes_size
         # avatar
         if self.avatar:
             size += self.avatar.size
@@ -118,11 +111,34 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.create_thumbnail()
+
     def get_avatar_url(self):
         if self.avatar:
             return self.avatar.url
         else:
             return DEFAULT_AVATAR_URL
+
+    def get_thumbnail_url(self):
+        if self.avatar:
+            return self.avatar.url.split(".")[0] + "_thumbnail.png"
+        else:
+            return DEFAULT_THUMBNAIL_URL
+
+    def create_thumbnail(self):
+        # If there is no image associated with this.
+        # do not create thumbnail
+        if not self.avatar:
+            return
+
+        # Set our max thumbnail size in a tuple (max width, max height)
+        THUMBNAIL_SIZE = (64, 64)
+
+        im = ImagePic.open(self.avatar.file.name)
+        im.thumbnail(THUMBNAIL_SIZE)
+        im.save(self.avatar.file.name.split(".")[0] + "_thumbnail.png")
 
     def send_request_for_relationship(self, person):
         current_status = self.check_relationship(person)
@@ -268,9 +284,6 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
 
         return {'status': success, 'relationship_status': relationship_upd}
 
-    def __unicode__(self):
-        return self.username
-
     def __str__(self):
         return self.username
 
@@ -279,11 +292,3 @@ class Relationship(models.Model):
     from_person = models.ForeignKey(User, related_name='from_people', on_delete=models.CASCADE)
     to_person = models.ForeignKey(User, related_name='to_people', on_delete=models.CASCADE)
     status = models.IntegerField(choices=RELATIONSHIP_STATUSES)
-
-
-class Image(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    description = models.CharField(max_length=255, blank=True)
-    image = models.ImageField(upload_to=user_directory_path)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-

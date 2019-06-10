@@ -153,7 +153,6 @@ class UserUpdateForm(UserForm):
                 self.changed_data.pop(index)
                 cleaned_data.pop('password')
         # check delta for all fields except password_again (not exist in DB)
-        # breakpoint()
         for field_name in self.changed_data:
             if field_name in ['password_again']:
                 continue

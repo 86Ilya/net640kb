@@ -32,6 +32,9 @@ function update_flow_func(){
           else if(message['inc_user_page_size']){
             vue_app.user_page_size_bytes += parseInt(message['inc_user_page_size']);
           }
+          else if(message['dec_user_page_size']){
+            vue_app.user_page_size_bytes -= parseInt(message['dec_user_page_size']);
+          }
           vue_app.user_page_size_formatted = beautify_page_size(vue_app.user_page_size_bytes);
         }
         else{

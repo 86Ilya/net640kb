@@ -1,6 +1,7 @@
-from django.urls import path, re_path
+from django.urls import path
 from Net640.apps.user_posts import views
 
 urlpatterns = [
-    re_path(r'^post(?P<post_id>(\d*))/(?P<action>(dislike|like|remove))', views.user_post_action, name="user_post_action")
+        path(r'post_action/', views.user_post_action, name="user_post_action"),
+        path(r'news/', views.user_news, name="user_news"),
 ]

@@ -44,6 +44,3 @@ def update_user_by_form(request, context):
         # This is strange but user instance is changed after form validation
         context['user'].refresh_from_db()
     return user_update_form, valid
-
-def utf8len(s):
-    return len(s.encode('utf-8'))

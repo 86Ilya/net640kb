@@ -34,12 +34,17 @@
             <div class="row posts_list__item w-75 mx-auto">
               <div class="col-12 col-md-8 mx-auto">
                 <div class="row">
-                  <div class="col-1 text-right align-self-right">
-                    {#TODO only like or dislike#}
-                    <i class="fas fa-thumbs-up" data-action-vote="{% url 'user_post_action' post.id 'like' %}"></i>
-                    <i class="fas fa-thumbs-down" data-action-vote="{% url 'user_post_action' post.id 'like' %}"></i>
+                  <div class="col-1 text-center align-self-right">
+                    <div class="badge badge-dark">{{ post.rating | floatformat:1}}</div>
                   </div>
-                  <div class="col-10">
+                  <div class="col-1">
+                    {% if post.user_has_like %}
+                    <i class="fas fa-heart" data-action='dislike' data-action-url="{% url 'user_post_action' %}" data-post-id="{{ post.id }}"></i>
+                    {% else %}
+                    <i class="far fa-heart" data-action='like' data-action-url="{% url 'user_post_action' %}" data-post-id="{{ post.id }}"></i>
+                    {% endif %}
+                  </div>
+                  <div class="col-9">
                     <div>
                       {{post.content}}
                     </div>
@@ -49,7 +54,7 @@
                     </div>
                   </div>
                   <div class="col-1 text-right align-self-right">
-                    <i class="far fa-trash-alt" data-action-vote="{% url 'user_post_action' post.id 'remove' %}"></i>
+                    <i class="far fa-trash-alt" data-action='remove' data-action-url="{% url 'user_post_action' %}" data-post-id="{{ post.id }}"></i>
                   </div>
                 </div>
               </div>
@@ -65,5 +70,6 @@
 
 {% block scripts %}
 {% load static %}
-{#<script type="text/javascript" src='{% static 'user_profile/js/main.js' %}'></script>#}
+<script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
+<script type="text/javascript" src='{% static 'user_posts/js/user_post_actions.js' %}'></script>
 {% endblock %}

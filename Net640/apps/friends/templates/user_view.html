@@ -2,18 +2,25 @@
 
 {% block title %}User:  {{user.username}}{% endblock %}
 
-{% block content %}
+{% load static %}
+{% block css_rules %}
+<link rel='stylesheet' href="{% static 'vendor/css/fontawesome/all.css' %}" />
+{% endblock %}
 
+{% block content %}
 
 
 <div id="vue_user_view_app" class="">
 
   <!-- default values -->
-  <div id="default_values"
+  <div id="default_values" class="d-none"
        data-relationship_status="{{relationship_status}}"
        data-page_owner_username="{{page_owner_username}}"
        data-page_owner_id="{{page_owner_id}}"
-       data-page_owner_size="{{page_owner_size}}">
+       data-page_owner_size="{{page_owner_size}}"
+       data-action-url="{% url 'user_post_action' %}"
+       >
+
 
   </div>
   <!-- end of default values -->
@@ -40,15 +47,33 @@
   </div>
 
   <div v-if="posts.length > 0" class="container mt-5">
-        <div v-for="post in posts" class="posts_list__item row">
-          <div class="col-12 col-md-8 mx-auto">
-              <div class="posts_list__item_content">
-                [[post.content]]
+        <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
+              <div class="col-12 col-md-8 mx-auto">
+                <div class="row mt-3">
+                  <div class="col-2">
+                    <div class="badge badge-dark">[[post.rating]]</div>
+
+                    <div v-if="post.user_has_like">
+                      <i class="fas fa-heart d-inline" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
+                    </div>
+                    <div v-else>
+                      <i class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
+                    </div>
+                  </div>
+
+                  <div class="col-8">
+                    <div>
+                      [[post.content]]
+                    </div>
+                    <div class="posts_list__item_author_and_date">
+                      [[post.author]]
+                      [[post.date]]
+                    </div>
+                  </div>
+
+                </div>
               </div>
-              <div class="posts_list__item_author_and_date">
-                [[post.author]]
-                [[post.date]]
-              </div>
+
           </div>
         </div>
   </div>
@@ -58,7 +83,6 @@
 {% endblock %}
 
 {% block scripts %}
-{% load static %}
 <script type="text/javascript" src='{% static "vendor/js/vue.js" %}'></script>
 <script type="text/javascript" src='{% static "friends/js/user_view.js" %}'></script>
 <script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>

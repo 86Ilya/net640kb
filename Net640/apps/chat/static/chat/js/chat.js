@@ -8,45 +8,49 @@ function chat_func() {
   let send_message_btn = document.getElementById('send_message_btn');
   let send_message_form = document.getElementById('send_message_form');
   let chat_table = document.getElementById('chat_table');
+  let chat_table_body = document.getElementById('chat_table_body');
   let chat_window = document.getElementById('chat_window');
   let ws_scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
   let path = ws_scheme + window.location.host + '/ws/chat/' + room_name + '/';
-  //var path = 'ws://127.0.0.1:8000/'+'ws/chat/' + room_name + '/';
   let chatsock = new ReconnectingWebSocket(path);
-  //let chatsock = new WebSocket(path);
 
-  // var chatsock = new WebSocket(ws_scheme + '://' + window.location.hostname + '/' + group_id + ':8000');
-  // chat__table.setAttribute('style','.written_by_${ownerName} {background-color: white;}');
   chat_window.scrollTop = chat_window.scrollHeight;
 
 
   chatsock.onmessage = function(event) {
       let message = JSON.parse(event.data)['message'];
-      //debugger
-      let ele = document.createElement("tr");
-      // var ele = $('<tr></tr>')
+      let tr = document.createElement("tr");
+      tr.setAttribute("class", "chat__table_message");
       let td_time = document.createElement("td");
       td_time.innerText = message.timestamp;
       td_time.setAttribute("class", "chat__table_message_time");
-      ele.appendChild(td_time);
+      tr.appendChild(td_time);
 
       let td_content = document.createElement("td");
       td_content.innerText = message.content;
-      // console.log(data.author == ownerName);
+      let td_trash = document.createElement("td");
       if(message.author == master){
         td_content.setAttribute("class", "chat__table_message_content chat__table_message_written_by_owner");
+        let i_elem = document.createElement("i");
+        i_elem.setAttribute("class", "far fa-trash-alt");
+        i_elem.setAttribute("data-action-url", "/message_action/");
+        i_elem.setAttribute("data-message-id", message.message_id);
+        i_elem.setAttribute("data-action", "remove");
+        i_elem.onclick = action_on_user_message;
+        td_trash.appendChild(i_elem);
+
       }
       else{
         td_content.setAttribute("class", "chat__table_message_content");
       }
       
-      ele.appendChild(td_content);
+      tr.appendChild(td_content);
+      tr.appendChild(td_trash);
 
 
-      chat_table.appendChild(ele)
+      chat_table_body.appendChild(tr)
 
       chat_window.scrollTop = chat_window.scrollHeight;
-      //chat_table.scrollTop = chat_table.scrollHeight;
 
   };
 
@@ -76,5 +80,37 @@ function chat_func() {
     if(e.which == 13) {
       send_message_btn.onclick();
     }
+  }
+
+
+  let csrftoken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+  let action_elem = document.querySelectorAll(".fa-trash-alt");
+  action_elem.forEach(function(elem){
+      elem.onclick = action_on_user_message;
+  });
+
+  function action_on_user_message(event){
+    let cur = event.currentTarget;
+    let action = cur.getAttribute('data-action');
+    let path = cur.getAttribute('data-action-url');
+    let message_id = cur.getAttribute('data-message-id');
+
+    let data = {
+      csrfmiddlewaretoken: csrftoken,
+      action: action,
+      message_id: message_id
+      };
+      
+    post_request(data, path).then(function(response){
+      response = JSON.parse(response);
+      if(response['result'] == true){
+        if(action == 'remove'){
+          // TODO looks bad
+          cur.parentNode.parentNode.remove();
+        } 
+      }
+
+    });
   }
 }

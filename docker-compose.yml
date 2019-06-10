@@ -17,8 +17,9 @@ services:
          context: .
          dockerfile: ./docker/web_service/Dockerfile
     command: /app/docker/web_service/fire.sh
-    #volumes:
-      #- .:/code
+    volumes:
+    - static-content:/app/static/
+    - media-content:/app/media/
     ports:
       - "8000:8000"
       - "8001:8001"
@@ -37,7 +38,16 @@ services:
     depends_on:
           - web
     volumes:
-      - ./static:/srv/www/net640/static
-      - ./media:/srv/www/net640/media
+      - static-content:/app/static
+      - media-content:/app/media
+      #- static-content:/srv/www/net640/static
+      #- media-content:/srv/www/net640/media
+      #- ./static:/srv/www/net640/static
+      #- ./media:/srv/www/net640/media
       - ./logs:/srv/www/net640/logs
       - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/uwsgi_config/:/srv/config
+
+volumes:
+    static-content:
+    media-content:

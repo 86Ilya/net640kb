@@ -1,9 +1,7 @@
 from django.shortcuts import render, redirect
-# from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-# from django.core.exceptions import ObjectDoesNotExist
 
 from Net640.apps.user_posts.models import Post
 from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
@@ -20,6 +18,8 @@ def mainpage_view(request):
     context = {'user_login': user_login}
 
     if user_login:
+        master = request.user
+        posts = list()
         if request.method == "POST":
             post_form = PostForm(request.POST, user=request.user)
             if post_form.is_valid():
@@ -34,7 +34,14 @@ def mainpage_view(request):
         else:
             post_form = PostForm
 
-        posts = Post.objects.filter(author=request.user)[:10]
+        for post in Post.objects.filter(author=master)[:10]:
+                posts.append({'content': post.content,
+                              'user_has_like': post.has_like(master),
+                              'rating': post.get_rating(),
+                              'author': post.author,
+                              'date': post.date,
+                              'id': post.id, })
+
         context.update({'posts': posts, 'post_form': post_form, 'firstname': request.user.firstname})
         return render(request, 'main_page.html', context)
     else:
@@ -43,16 +50,6 @@ def mainpage_view(request):
 
 def check_user_auth(user):
     return user.is_authenticated
-
-
-# FOR DEBUG ONLY
-@login_required
-def all_users(request):
-    friends = User.objects.all()
-    ctx = {'firstname': request.user.firstname,
-           'friends': friends}
-
-    return render(request, 'friends.html', ctx)
 
 
 def login_view(request):
@@ -77,7 +74,6 @@ def signup_view(request):
     if request.method == "POST":
         signup_form, valid = save_user_by_form(request, context)
         context.update({'signup_form': signup_form})
-        # breakpoint()
         if valid:
             login(request, context['user'])
             return redirect('mainpage')
@@ -96,7 +92,6 @@ def profile_view(request):
     status = HTTP_OK
     if request.method == "POST":
         user_update_form, valid = update_user_by_form(request, context)
-        # breakpoint()
         if not valid:
             status = HTTP_BAD_REQUEST
     else:
@@ -105,7 +100,6 @@ def profile_view(request):
                                                    'patronymic': context['user'].patronymic,
                                                    'birth_date': context['user'].birth_date})
         login(request, context['user'])  # TODO ???
-        # breakpoint()
     context.update({'update_form': user_update_form})
     return render(request, 'profile.html', context, status=status)
 
@@ -114,5 +108,3 @@ def profile_view(request):
 def logout_view(request):
     logout(request)
     return redirect('mainpage')
-
-

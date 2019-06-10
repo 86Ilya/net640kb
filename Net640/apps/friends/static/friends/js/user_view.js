@@ -14,10 +14,16 @@ function user_view_func(){
       "-1": 'Not a friend',
     };
       
-    let relationship_status = document.getElementById("default_values").getAttribute("data-relationship_status");
-    let page_owner_username = document.getElementById("default_values").getAttribute("data-page_owner_username");
-    let page_owner_id = document.getElementById("default_values").getAttribute("data-page_owner_id");
-    let page_owner_size = document.getElementById("default_values").getAttribute("data-page_owner_size");
+    let default_values = document.getElementById("default_values")
+    let relationship_status = default_values.getAttribute("data-relationship_status");
+    let page_owner_username = default_values.getAttribute("data-page_owner_username");
+    let page_owner_id = default_values.getAttribute("data-page_owner_id");
+    let page_owner_size = default_values.getAttribute("data-page_owner_size");
+    let post_action_url = default_values.getAttribute('data-action-url');
+
+    // TODO -> to function
+    page_owner_size = (parseInt(page_owner_size) / 1024).toFixed(1) + "Kb";
+
     let friend = false;
     if(parseInt(relationship_status) ===  RELATIONSHIP_FRIENDS){
       friend = true;
@@ -26,7 +32,7 @@ function user_view_func(){
     let doc_path = window.location.pathname;
     let csrftoken = document.querySelectorAll('input[name=csrfmiddlewaretoken]')[0].value;
     let relationship_descr = RELATIONSHIP_STATUSES[parseInt(relationship_status)];
-     console.log("relationship_status",relationship_status, RELATIONSHIP_STATUSES);
+
     var vue_app = new Vue({
       el: '#vue_user_view_app',
       delimiters: ['[[', ']]'],
@@ -41,13 +47,13 @@ function user_view_func(){
         page_owner_id: page_owner_id,
         page_owner_size: page_owner_size,
         RELATIONSHIP_STATUSES: RELATIONSHIP_STATUSES,
-        RELATIONSHIP_FRIENDS: RELATIONSHIP_FRIENDS
+        RELATIONSHIP_FRIENDS: RELATIONSHIP_FRIENDS,
+        post_action_url: post_action_url,
       },
       methods: {
-        send_request_for_friends: send_request_for_friends,
-        remove_from_friends: remove_from_friends,
         get_user_info: get_user_info,
         update_relationship_descr: update_relationship_descr,
+        action_on_user_post: action_on_user_post,
       }
     });
     
@@ -69,9 +75,7 @@ function user_view_func(){
 }
 
 function update_relationship_descr(){
-  // console.log("update_relationship_descr");
   this.relationship_descr=this.RELATIONSHIP_STATUSES[this.relationship_status];
-  console.log("this.$data.relationship_status", this.relationship_status);
 
   if(parseInt(this.relationship_status) ===  this.RELATIONSHIP_FRIENDS){
     this.friend = true;
@@ -82,7 +86,6 @@ function update_relationship_descr(){
 }
 
 function get_user_info(){
-  console.log("in get_user_info");
   
   let data = {
     csrfmiddlewaretoken: this.csrftoken,
@@ -93,48 +96,46 @@ function get_user_info(){
       let json_resp = JSON.parse(response);
       this.posts = json_resp.posts;
       this.relationship_status = parseInt(json_resp.relationship_status);
-      console.log("r.relationship_status", json_resp.relationship_status);
       this.update_relationship_descr();
 
       //TODO alert -> useful
     }, alert);
 }
 
-function send_request_for_friends(){
-  let data = {
-    csrfmiddlewaretoken: this.csrftoken,
-    action: "add",
-    };
-    
-  post_request(data, this.doc_path).then((response)=>{
-    let r = JSON.parse(response);
-    if(r.status && r.status == true) {
-      this.relationship_status = parseInt(r.relationship_status);
-      console.log("r.relationship_status", r.relationship_status);
-      this.update_relationship_descr();
+function action_on_user_post(event){
+      let cur = event.currentTarget;
+      let action = cur.getAttribute('data-action');
+      let path = cur.getAttribute('data-action-url');
+      let post_id = cur.getAttribute('data-post-id');
+      let data = {
+        csrfmiddlewaretoken: this.csrftoken,
+        action: action,
+        post_id: post_id
+        };
+      post_request(data, path).then(function(response){
+        response = JSON.parse(response);
 
+        if(response['result'] == true){
+
+          if(action == 'remove'){
+            // TODO looks bad
+            cur.parentNode.parentNode.parentNode.parentNode.remove();
+          } 
+          else if(action == 'like'){
+            cur.setAttribute('class', 'fas fa-heart');
+            cur.setAttribute('data-action', 'dislike');
+            cur.parentNode.parentNode.getElementsByClassName("badge")[0].innerText = response["likes"].toFixed(1);
+            
+          }
+          else if(action == 'dislike'){
+            cur.setAttribute('class', 'far fa-heart');
+            cur.setAttribute('data-action', 'like');
+            cur.parentNode.parentNode.getElementsByClassName("badge")[0].innerText = response["likes"].toFixed(1);
+            
+          }
+ 
+              
+        }
+
+      });
     }
-  }, alert);
-
-}
-
-function remove_from_friends(event){
-  // let relationship = event.target.dataset.relationship;
-  console.log("this.relationship",this.relationship_status);
-  let data = {
-    csrfmiddlewaretoken: this.csrftoken,
-    action: "remove",
-    relationship: this.relationship_status
-    };
-    
-  post_request(data, this.doc_path).then((response)=>{
-    let r = JSON.parse(response);
-    if(r.status && r.status == true) {
-      this.relationship_status = parseInt(r.relationship_status);
-      console.log("r.relationship_status", r.relationship_status);
-      this.update_relationship_descr();
-
-    }
-  }, alert);
-
-}

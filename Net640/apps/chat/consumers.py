@@ -13,7 +13,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             raise Exception("user is not authenticated")
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-        # print(self.room_group_name)
 
         # Join room group
         await self.channel_layer.group_add(
@@ -22,8 +21,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-        # breakpoint()
-        # print(self.scope['user'], " joined to grp: ", self.room_group_name)
 
     async def disconnect(self, close_code):
         # Leave room group
@@ -43,15 +40,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Save message to database
         chat_message = Message(author=self.user, chat_room=self.room_name, content=content)
         try:
-            # breakpoint()
             chat_message.save()
             response = {
                         'content': chat_message.content,
                         'timestamp': chat_message.formatted_timestamp,
                         'author': chat_message.author.username,
+                        'message_id': chat_message.id,
                        }
 
-        # TODO how to do this right? Too much errors in log
         except NotEnoughSpace:
             return
         else:
@@ -80,21 +76,13 @@ class EventConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         # TODO print -> logging
-        # print("Closed websocket with code: ", close_code)
         await self.channel_layer.group_discard(
             self.room_name,
             self.channel_name
         )
-        # self.close()
 
     async def receive_json(self, content, **kwargs):
-        # print("Received event: {}".format(content))
         await self.send_json(content)
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # Handler definitions! handlers will accept their corresponding message types. A message with type event.alarm
-    # has to have a function event_alarm
-    # ------------------------------------------------------------------------------------------------------------------
 
     async def update_flow(self, event):
         await self.send_json(
