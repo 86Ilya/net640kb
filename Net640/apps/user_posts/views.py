@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_http_methods, require_POST
 
 from Net640.apps.user_posts.models import Post
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
@@ -12,29 +13,30 @@ news_query = "select user_posts_post.id from user_posts_post\
 
 
 @login_required
+@require_POST
 def user_post_action(request):
     context = {}
     user = request.user
-    if request.method == "POST":
-        context.update({"result": False})
-        post_id = request.POST.get('post_id', None)
-        post = get_object_or_404(Post, id=post_id)
-        action = request.POST.get('action', None)
+    context.update({"result": False})
+    post_id = request.POST.get('post_id', None)
+    post = get_object_or_404(Post, id=post_id)
+    action = request.POST.get('action', None)
 
-        if action == 'like':
-            post.add_like(user)
-            context.update({"result": True, "likes": post.get_rating()})
-        if action == 'dislike':
-            post.remove_like(user)
-            context.update({"result": True, "likes": post.get_rating()})
-        if action == 'remove':
-            if user == post.author:
-                post.delete()
-                context.update({"result": True})
-        return JsonResponse(context)
+    if action == 'like':
+        post.add_like(user)
+        context.update({"result": True, "likes": post.get_rating()})
+    if action == 'dislike':
+        post.remove_like(user)
+        context.update({"result": True, "likes": post.get_rating()})
+    if action == 'remove':
+        if user == post.author:
+            post.delete()
+            context.update({"result": True})
+    return JsonResponse(context)
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def user_news(request):
     master = request.user
     context = dict()

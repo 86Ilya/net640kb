@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods, require_POST, require_GET
 
 from Net640.apps.images.forms import ImageForm
 from Net640.apps.images.models import Image
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def user_images_view(request):
     master = request.user
 
@@ -49,27 +51,28 @@ def user_images_view(request):
 
 
 @login_required
+@require_POST
 def user_image_action(request):
     context = {}
     user = request.user
-    if request.method == "POST":
-        image_id = request.POST.get('image_id', None)
-        image = get_object_or_404(Image, id=image_id)
-        action = request.POST.get('action', None)
+    image_id = request.POST.get('image_id', None)
+    image = get_object_or_404(Image, id=image_id)
+    action = request.POST.get('action', None)
 
-        if action == 'like':
-            image.add_like(user)
-            context.update({"result": True, "likes": image.get_rating()})
-        if action == 'dislike':
-            image.remove_like(user)
-            context.update({"result": True, "likes": image.get_rating()})
-        if action == 'remove':
-            if user == image.user:
-                image.delete()
-                context.update({"result": True})
+    if action == 'like':
+        image.add_like(user)
+        context.update({"result": True, "likes": image.get_rating()})
+    if action == 'dislike':
+        image.remove_like(user)
+        context.update({"result": True, "likes": image.get_rating()})
+    if action == 'remove':
+        if user == image.user:
+            image.delete()
+            context.update({"result": True})
     return JsonResponse(context)
 
 
+@require_GET
 def get_image(request, username, imagename):
     master = request.user
     user = get_object_or_404(User, username=username)

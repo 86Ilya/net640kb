@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_http_methods, require_GET
 
 from Net640.apps.user_posts.models import Post
 from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
@@ -13,6 +14,7 @@ from Net640.apps.user_profile.helpers import base, save_user_by_form, update_use
 User = get_user_model()
 
 
+@require_http_methods(["GET", "POST"])
 def mainpage_view(request):
     user_login = check_user_auth(request.user)
     context = {'user_login': user_login}
@@ -52,6 +54,7 @@ def check_user_auth(user):
     return user.is_authenticated
 
 
+@require_http_methods(["GET", "POST"])
 def login_view(request):
     context = base(request)
     if request.method == "POST":
@@ -68,6 +71,7 @@ def login_view(request):
         return render(request, "login.html", context)
 
 
+@require_http_methods(["GET", "POST"])
 def signup_view(request):
     context = base(request)
     status = HTTP_OK
@@ -87,6 +91,7 @@ def signup_view(request):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def profile_view(request):
     context = base(request)
     status = HTTP_OK
@@ -105,6 +110,7 @@ def profile_view(request):
 
 
 @login_required
+@require_GET
 def logout_view(request):
     logout(request)
     return redirect('mainpage')

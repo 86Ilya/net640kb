@@ -20,7 +20,8 @@ function submit_data(event){
   let password2 = document.getElementById("id_password_again").value;
   let result = document.getElementById("pre_submit");
   let form = document.querySelector('form[enctype="multipart/form-data"]');
-  if(password1 === password2 && password1.length >= 8){
+  // senf form only if password have enouth length or password is empty
+  if(password1 === password2 && (password1.length >= 8 || password1.length == 0)){
       result.innerText = "Ok";
       form.submit();
   }

@@ -54,6 +54,7 @@ function user_view_func(){
         get_user_info: get_user_info,
         update_relationship_descr: update_relationship_descr,
         action_on_user_post: action_on_user_post,
+        send_request_for_friends: send_request_for_friends,
       }
     });
     
@@ -139,3 +140,21 @@ function action_on_user_post(event){
 
       });
     }
+
+function send_request_for_friends(){
+  let data = {
+    csrfmiddlewaretoken: this.csrftoken,
+    action: "add",
+    };
+
+  post_request(data, this.doc_path).then((response)=>{
+    let r = JSON.parse(response);
+    if(r.status && r.status == true) {
+      this.relationship_status = parseInt(r.relationship_status);
+      console.log("r.relationship_status", r.relationship_status);
+      this.update_relationship_descr();
+
+    }
+  }, alert);
+
+}

@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 
 from Net640.apps.user_posts.models import Post
 
@@ -9,6 +10,7 @@ User = get_user_model()
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def friends_view(request):
     master = User.objects.get(pk=request.user.id)
     if request.method == "POST" and request.POST.get("action", False):
@@ -57,6 +59,7 @@ def friends_view_post_action(master, post):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def user_view(request, user_id):
     master = User.objects.get(pk=request.user.id)
     page_owner = User.objects.get(pk=user_id)
@@ -94,7 +97,6 @@ def user_view_post(master, page_owner, post):
                               'date': post.date.strftime('%b %d, %Y'),
                               'id': post.id,
                               'author_thumbnail_url': post.author.get_thumbnail_url(), })
-            # posts.append({'author': post.author.username, 'date': post.date, 'content': post.content})
         result = {'relationship_status': relationship_status,
                   'posts': posts,
                   'page_owner': {'id': page_owner.id, 'username': page_owner.username},
