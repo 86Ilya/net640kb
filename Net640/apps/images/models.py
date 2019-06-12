@@ -1,3 +1,4 @@
+import uuid
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
@@ -11,7 +12,8 @@ CHANNEL_LAYER = get_channel_layer()
 
 
 def user_directory_path(instance, filename):
-    return 'users/{0}/{1}'.format(instance.user.username, filename)
+    ext = filename.split('.')[-1]
+    return 'users/{0}/{1}.{2}'.format(instance.user.username, uuid.uuid4(), ext)
 
 
 def user_avatar_path(instance, filename):
