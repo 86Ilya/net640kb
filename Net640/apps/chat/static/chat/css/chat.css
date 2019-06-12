@@ -3,14 +3,6 @@
     height: 70vh;
     overflow-y: scroll;
 }
-/*.chat__table {*/
-  /*display: block;*/
-  /*box-sizing: border-box;*/
-  /*margin: 20px auto;*/
-  /*overflow-y: scroll;*/
-  /*[>height: 250px;  <]*/
-/*}*/
-
 
 .chat__table_message {
   width: 100%;
@@ -30,6 +22,7 @@
   font-size: large;
   background-color: #f2f2f2;
   width: 92%;
+  word-break: break-all;
 }
 
 .chat__table_message_written_by_owner {
@@ -39,7 +32,6 @@
 .chat__header {
   
   display: inline-block;
-  /* margin:0 auto; */
   padding: 10px;
   margin-left: 60px;
   margin-top: 20px;

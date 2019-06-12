@@ -23,14 +23,11 @@
           {% for message in messages %}
             <tr class="chat__table_message">
               <td class="chat__table_message_time">{{ message.formatted_timestamp }}</td>
-              <!-- <td class="chat__table_message_author">{{ message.author }}</td> -->
               {% ifequal user.id message.author.id %}
                 <td class="chat__table_message_content chat__table_message_written_by_owner" > {{ message.content }} </td>
-              
                 <td><i class="far fa-trash-alt" data-action='remove' data-action-url="{% url 'user_message_action' %}" data-message-id="{{ message.id }}"></i></td>
-
               {% else %}
-              <td class="chat__table_message_content" >{{ message.content }}</td>
+                <td class="chat__table_message_content" >{{ message.content }}</td>
               {% endifequal %}
             </tr>
           {% endfor %}
@@ -39,8 +36,6 @@
     </div>
   </div>
 
-  {#send message form#}
-  {#<div class="row fixed-bottom">#}
   <div class="row text-center">
     <div class="col-12 mx-auto">
       <form class="mx-auto" method="post" id="send_message_form">
@@ -59,7 +54,6 @@
 {% endblock %}
 
 {% block scripts %}
-{#<script type="text/javascript" src='{% static "js/reconnecting-websocket.min.js" %}'></script>#}
 <script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
 <script type="text/javascript" src='{% static "chat/js/chat.js" %}'></script>
 {% endblock %}

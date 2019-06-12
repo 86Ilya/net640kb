@@ -3,7 +3,6 @@
 {% block title %}My page{% endblock %}
 {% load static %}
 {% block css_rules %}
-<link rel='stylesheet' href='{% static 'user_profile/css/main_page.css' %}' />
 <link rel='stylesheet' href="{% static 'vendor/css/fontawesome/all.css' %}" />
 {% endblock %}
 
@@ -45,7 +44,7 @@
                     {% endif %}
                   </div>
                   <div class="col-9">
-                    <div>
+                    <div class="wordwrap">
                       {{post.content}}
                     </div>
                     <div class="posts_list__item_author_and_date">

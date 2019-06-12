@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
@@ -14,10 +14,8 @@ User = get_user_model()
 def friends_view(request):
     master = User.objects.get(pk=request.user.id)
     if request.method == "POST" and request.POST.get("action", False):
-        # Следущая функция делает return
         return JsonResponse(friends_view_post_action(master, request.POST))
 
-    # friends, waiting_for_accept, sended_requests = master.get_friends_lists()
     friends = master.get_friends()
     waiting_for_accept = master.get_waiting_for_accept()
     sended_requests = master.get_requests_for_relationship()
@@ -62,6 +60,9 @@ def friends_view_post_action(master, post):
 @require_http_methods(["GET", "POST"])
 def user_view(request, user_id):
     master = User.objects.get(pk=request.user.id)
+    if int(user_id) == master.id:
+        return redirect('mainpage')
+
     page_owner = User.objects.get(pk=user_id)
     relationship_status = master.check_relationship(page_owner)
     if request.method == "POST" and request.POST.get("action", False):

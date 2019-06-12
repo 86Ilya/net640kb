@@ -3,3 +3,4 @@ helpers
 .env
 logs/
 __pycache__
+*.develop
