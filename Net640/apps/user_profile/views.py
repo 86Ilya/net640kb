@@ -23,11 +23,11 @@ def mainpage_view(request):
         master = request.user
         posts = list()
         if request.method == "POST":
-            post_form = PostForm(request.POST, user=request.user)
+            post_form = PostForm(request.POST, request.FILES, user=request.user)
             if post_form.is_valid():
                 try:
                     new_post = post_form.save(commit=False)
-                    new_post.author = request.user
+                    new_post.user = request.user
                     new_post.save()
                 except NotEnoughSpace:
                     pass
@@ -36,12 +36,13 @@ def mainpage_view(request):
         else:
             post_form = PostForm
 
-        for post in Post.objects.filter(author=master)[:10]:
+        for post in Post.objects.filter(user=master)[:10]:
                 posts.append({'content': post.content,
                               'user_has_like': post.has_like(master),
                               'rating': post.get_rating(),
-                              'author': post.author,
+                              'author': post.user,
                               'date': post.date,
+                              'image_url': post.get_image_url(),
                               'id': post.id, })
 
         context.update({'posts': posts, 'post_form': post_form, 'firstname': request.user.firstname})

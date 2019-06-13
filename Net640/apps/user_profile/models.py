@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from Net640.settings import STATIC_URL
 from Net640.apps.images.models import Image, user_avatar_path
+from Net640.apps.user_posts.models import Post
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
@@ -45,10 +46,15 @@ class GetSizeMixin:
         # posts
         cursor.execute('select sum(length) from (\
             SELECT octet_length(t.*::text) as "length" FROM user_posts_post AS t\
-            WHERE t.author_id=%s )posts_sum', [id, ])
+            WHERE t.user_id=%s )posts_sum', [id, ])
         posts_size = cursor.fetchone()[0]
         if posts_size:
             size += posts_size
+        # posts images
+        posts = Post.objects.filter(user_id=id)
+        for post in posts:
+            if post.image:
+                size += post.image.size
         # posts likes
         cursor.execute('select sum(length) from (SELECT octet_length(t.*::text) as "length" FROM\
                            user_posts_post_likes AS t WHERE t.user_id=1)user_posts_likes;', [id, ])

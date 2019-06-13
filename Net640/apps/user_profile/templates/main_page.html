@@ -16,9 +16,13 @@
 
   <div class="row mt-3">
     <div class="col-12 col-md-8 mx-auto">
-      <form method="post">
+      <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ post_form }}
+
+        <div class="row mt-2 mb-2">
+          <img src="" id="preview_image" class="w-50 mx-auto d-none"/>
+        </div>
         <input type="submit" class ="btn btn-secondary w-100" value="Send Post"> 
       </form>
     </div>
@@ -32,6 +36,22 @@
           {% for post in posts %}
             <div class="row posts_list__item w-75 mx-auto">
               <div class="col-12 col-md-8 mx-auto">
+                {% if post.image_url %}
+                <div class="row">
+                    <img src="{{post.image_url}}" class="col-12 mx-auto">
+                </div>
+                {% endif %}
+                <div class="row">
+                  <div class="col-12">
+                    <div class="wordwrap">
+                      {{post.content}}
+                    </div>
+                    <div class="posts_list__item_author_and_date">
+                      {{post.author}}
+                      {{post.date | date:"M d, Y"}}
+                    </div>
+                  </div>
+                </div>
                 <div class="row">
                   <div class="col-1 text-center align-self-right">
                     <div class="badge badge-dark">{{ post.rating | floatformat:1}}</div>
@@ -43,16 +63,7 @@
                     <i class="far fa-heart" data-action='like' data-action-url="{% url 'user_post_action' %}" data-post-id="{{ post.id }}"></i>
                     {% endif %}
                   </div>
-                  <div class="col-9">
-                    <div class="wordwrap">
-                      {{post.content}}
-                    </div>
-                    <div class="posts_list__item_author_and_date">
-                      {{post.author}}
-                      {{post.date | date:"M d, Y"}}
-                    </div>
-                  </div>
-                  <div class="col-1 text-right align-self-right">
+                  <div class="col-1 offset-9 text-right align-self-right">
                     <i class="far fa-trash-alt" data-action='remove' data-action-url="{% url 'user_post_action' %}" data-post-id="{{ post.id }}"></i>
                   </div>
                 </div>
@@ -71,4 +82,5 @@
 {% load static %}
 <script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
 <script type="text/javascript" src='{% static 'user_posts/js/user_post_actions.js' %}'></script>
+<script type="text/javascript" src='{% static 'user_posts/js/user_post_dragndrop.js' %}'></script>
 {% endblock %}

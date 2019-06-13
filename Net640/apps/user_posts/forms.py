@@ -10,7 +10,7 @@ from Net640.settings import MAX_PAGE_SIZE
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ('content',)
+        fields = ('content', 'image')
 
     content = forms.CharField(widget=forms.Textarea)
 
@@ -24,6 +24,13 @@ class PostForm(forms.ModelForm):
         self.fields['content'].help_text = ''
         self.fields['content'].label = ''
         self.fields['content'].required = True
+
+        self.fields['image'].widget.attrs.update({
+            'class': 'form-control',
+        })
+        self.fields['image'].help_text = ''
+        self.fields['image'].label = ''
+        self.fields['image'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -40,6 +47,8 @@ class PostForm(forms.ModelForm):
         except ObjectDoesNotExist:
             form_size = 1
         form_size += len(str(cleaned_data['content'])) + len(str(self.instance.date)) + len(str(self.user.id))
+        if cleaned_data['image']:
+            form_size += cleaned_data['image'].size
 
         if self.user.get_size() + form_size > MAX_PAGE_SIZE:
             validation_errors.append(forms.ValidationError(_('Not enough space!'), code='oversize'))

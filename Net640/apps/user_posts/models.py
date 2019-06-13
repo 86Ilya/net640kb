@@ -1,15 +1,21 @@
 from datetime import datetime
 from django.db import models
+from django.conf import settings
 
-from Net640.apps.user_profile.models import User
+from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
 
 
 class Post(LikesMixin, models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
     date = models.DateTimeField(default=datetime.now, blank=True)
-    likes = models.ManyToManyField(User, default=None, related_name="post_likes")
+    image = models.ImageField(upload_to=user_directory_path)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="post_likes")
 
     class Meta:
         ordering = ["-date"]
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
