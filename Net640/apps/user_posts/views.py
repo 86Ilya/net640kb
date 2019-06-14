@@ -54,7 +54,7 @@ def user_news_post_action(master, post):
     posts = list()
     # get news
     if action == "get_news":
-        for post in Post.objects.raw(news_query, [master.id, RELATIONSHIP_FRIENDS])[:10]:
+        for post in Post.objects.raw(news_query, [RELATIONSHIP_FRIENDS, master.id])[:10]:
                 posts.append({'content': post.content,
                               'user_has_like': post.has_like(master),
                               'rating': round(post.get_rating(), 1),
