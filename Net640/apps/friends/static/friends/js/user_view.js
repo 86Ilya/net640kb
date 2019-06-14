@@ -2,18 +2,18 @@ window.addEventListener("load", user_view_func);
 
 function user_view_func(){
     const NO_RELATIONSHIP= -1;
-    const RELATIONSHIP_REQUEST = 0;
+    const RELATIONSHIP_REQUEST_HAS_SENT = 0;
     const RELATIONSHIP_WAITING_FOR_ACCEPT = 1;
     const RELATIONSHIP_FRIENDS = 2;
     const RELATIONSHIP_BLOCKED = 3;
-    let RELATIONSHIP_STATUSES = {
-      "0": 'Request has sent',
-      "1": 'Waiting for accept',
-      "2": 'Friends',
-      "3": 'Blocked',
-      "-1": 'Not a friend',
-    };
-      
+
+    let RELATIONSHIP_STATUSES = {};
+    RELATIONSHIP_STATUSES[NO_RELATIONSHIP] = 'Not a friend'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_REQUEST_HAS_SENT] = 'Request has sent';
+    RELATIONSHIP_STATUSES[RELATIONSHIP_WAITING_FOR_ACCEPT] = 'Waiting for accept'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_FRIENDS] = 'Friends'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_BLOCKED] = 'Blocked'
+        
     let default_values = document.getElementById("default_values")
     let relationship_status = default_values.getAttribute("data-relationship_status");
     let page_owner_username = default_values.getAttribute("data-page_owner_username");
@@ -151,7 +151,6 @@ function send_request_for_friends(){
     let r = JSON.parse(response);
     if(r.status && r.status == true) {
       this.relationship_status = parseInt(r.relationship_status);
-      console.log("r.relationship_status", r.relationship_status);
       this.update_relationship_descr();
 
     }

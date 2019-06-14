@@ -11,9 +11,9 @@ function friends_func(){
     let RELATIONSHIP_STATUSES = {};
     RELATIONSHIP_STATUSES[NO_RELATIONSHIP] = 'Not a friend'
     RELATIONSHIP_STATUSES[RELATIONSHIP_REQUEST_HAS_SENT] = 'Request has sent';
-    RELATIONSHIP_STATUSES[RELATIONSHIP_WAITING_FOR_ACCEPT ] = 'Waiting for accept'
-    RELATIONSHIP_STATUSES[RELATIONSHIP_FRIENDS ] = 'Friends'
-    RELATIONSHIP_STATUSES[RELATIONSHIP_BLOCKED ] = 'Blocked'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_WAITING_FOR_ACCEPT] = 'Waiting for accept'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_FRIENDS] = 'Friends'
+    RELATIONSHIP_STATUSES[RELATIONSHIP_BLOCKED] = 'Blocked'
 
 
     let doc_path = window.location.pathname;
@@ -50,7 +50,7 @@ function friends_func(){
     }
 
     function cancel(event){
-      user_id = event.target.dataset.user_id;
+      let user_id = event.target.dataset.user_id;
 
       let data={
         csrfmiddlewaretoken:this.$data.csrftoken,
@@ -72,8 +72,8 @@ function friends_func(){
     }
 
     function accept(event){
-      user_id = event.target.dataset.user_id;
-      relationship = event.target.dataset.relationship;
+      let user_id = event.target.dataset.user_id;
+      let relationship = event.target.dataset.relationship;
 
       let data={
         csrfmiddlewaretoken: this.$data.csrftoken,
@@ -93,27 +93,11 @@ function friends_func(){
       }, alert);
     }
 
-    // setInterval(testTimeout, 2000);
-
-    let isonfocus=true;  
-    window.onblur = function(){  
-      isonfocus=false;
-      //console.log("isonfocus", isonfocus);
-    };  
-    window.onfocus = function(){  
-      isonfocus=true;
-      //console.log("isonfocus", isonfocus);
-
-    };
     update_friends_list();
-
-
-
 }
 
 
 function get_friends_lists(doc_path, csrftoken){
-  // console.log("in get_friends_lists");
   let data = {
     csrfmiddlewaretoken: csrftoken,
     action: "get_friends_lists",
@@ -121,17 +105,3 @@ function get_friends_lists(doc_path, csrftoken){
     
   return post_request(data, doc_path);
 }
-
-//function processResponse(response){
-    //let r = JSON.parse(response);
-    //console.log(r);
-//}
-
-
-
-function updateVueData(response){
-
-}
-
-
-

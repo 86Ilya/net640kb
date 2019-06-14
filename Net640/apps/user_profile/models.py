@@ -159,9 +159,12 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
         return current_status
 
     def accept_request_for_relationship(self, person):
+        # TODO make it cleaner
         # remove old relationships
         self.remove_relationship(person, RELATIONSHIP_WAITING_FOR_ACCEPT, False)
+        self.remove_relationship(person, RELATIONSHIP_REQUEST_HAS_SENT, False)
         person.remove_relationship(self, RELATIONSHIP_REQUEST_HAS_SENT, False)
+        person.remove_relationship(self, RELATIONSHIP_WAITING_FOR_ACCEPT, False)
         # add new relationship
         self.add_relationship(person, RELATIONSHIP_FRIENDS)
         return self.check_relationship(person)
@@ -222,9 +225,6 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
         return self.get_relationships(RELATIONSHIP_FRIENDS)
 
     def get_waiting_for_accept(self):
-        # return self.relationships.filter(
-        #     to_people__status=RELATIONSHIP_WAITING_FOR_ACCEPT,
-        #     from_people__to_person=self)
         return self.get_relationships(RELATIONSHIP_WAITING_FOR_ACCEPT)
 
     def get_requests_for_relationship(self):

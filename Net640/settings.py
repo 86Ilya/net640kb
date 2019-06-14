@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'Net640.apps.chat',
     'Net640.apps.images',
     'Net640.apps.user_posts',
+    'Net640.apps.updateflow',
 ]
 
 MIDDLEWARE = [

@@ -62,6 +62,7 @@ def user_news_post_action(master, post):
                               # TODO reverse link
                               'author_page': '/id' + str(post.user.id),
                               'date': post.date.strftime('%b %d, %Y'),
+                              'image_url': post.get_image_url(),
                               'id': post.id,
                               'author_thumbnail_url': post.user.get_thumbnail_url(), })
 

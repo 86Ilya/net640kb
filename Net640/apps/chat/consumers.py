@@ -7,12 +7,16 @@ from Net640.errors import NotEnoughSpace
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
+    """
+    Class-consumer, which will accept WebSocket connections and
+    process ws messages.
+    """
     async def connect(self):
         self.user = self.scope['user']
         if not self.user.is_authenticated:
             raise Exception("user is not authenticated")
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'chat_%s' % self.room_name
+        self.room_group_name = 'chat_{}'.format(self.room_name)
 
         # Join room group
         await self.channel_layer.group_add(
@@ -31,8 +35,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-        # TODO is chek user in self.connect is enough to keep security?
-        # Or I need to check user on every receive event?
         text_data_json = json.loads(text_data)
         content = text_data_json['message']
         response = None
@@ -49,6 +51,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                        }
 
         except NotEnoughSpace:
+            # TODO send notificatin via update_flow
             return
         else:
             # Send message to room group

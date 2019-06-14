@@ -32,7 +32,7 @@
     <div>
       <div class="row no_link_behaviour">
         <div class="col-12 mt-2 simple_square">
-          User: [[page_owner_username]] Status: [[relationship_descr]] 
+          User: [[page_owner_username]] Status: [[relationship_descr]]
               <span v-if="relationship_status == -1" class="">
                   <div class="btn btn-secondary"  v-on:click="send_request_for_friends" :data-user_id="page_owner_id">
                     Add [[page_owner_username]] to friends
@@ -49,18 +49,11 @@
   <div v-if="posts.length > 0" class="container mt-5">
         <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
               <div class="col-12 col-md-8 mx-auto">
+                <div v-if="post.image_url" class="row">
+                    <img v-bind:src=post.image_url class="col-12 mx-auto">
+                </div>
+
                 <div class="row mt-3">
-                  <div class="col-2">
-                    <div class="badge badge-dark">[[post.rating]]</div>
-
-                    <div v-if="post.user_has_like">
-                      <i class="fas fa-heart d-inline" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
-                    </div>
-                    <div v-else>
-                      <i class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
-                    </div>
-                  </div>
-
                   <div class="col-8">
                     <div class="wordwrap">
                       [[post.content]]
@@ -70,10 +63,21 @@
                       [[post.date]]
                     </div>
                   </div>
-
                 </div>
-              </div>
 
+                <div class="row">
+                  <div class="col-2">
+                    <div class="badge badge-dark">[[post.rating]]</div>
+                    <div v-if="post.user_has_like">
+                      <i class="fas fa-heart d-inline" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
+                    </div>
+                    <div v-else>
+                      <i class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
           </div>
         </div>
   </div>

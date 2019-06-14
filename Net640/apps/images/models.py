@@ -12,12 +12,13 @@ CHANNEL_LAYER = get_channel_layer()
 
 
 def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/users/<username>/<uuid4>.<ext>
     ext = filename.split('.')[-1]
     return 'users/{0}/{1}.{2}'.format(instance.user.username, uuid.uuid4(), ext)
 
 
 def user_avatar_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/users/<username>/images/<filename>
+    # file will be uploaded to MEDIA_ROOT/users/<username>/avatar/avatar.<ext>
     return 'users/{0}/avatar/avatar.{1}'.format(instance.username, filename.split('.')[-1])
 
 
@@ -41,7 +42,6 @@ class Image(LikesMixin, models.Model):
             # send decrement info
             response = {'dec_user_page_size': image_size, 'error': False}
             room_name = str(author_id) + '_update_flow'
-            # TODO make it async?
             async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
                 'type': 'update_flow',
                 'message': response

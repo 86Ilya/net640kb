@@ -26,6 +26,9 @@
     <div v-if="posts.length > 0" class="container mt-5">
         <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
               <div class="col-12 col-md-8 mx-auto">
+                <div v-if="post.image_url" class="row">
+                    <img v-bind:src="post.image_url" class="col-12 mx-auto">
+                </div>
                 <div class="row mt-3">
                   <div class="col-2">
                     <div class="badge badge-dark">[[post.rating]]</div>

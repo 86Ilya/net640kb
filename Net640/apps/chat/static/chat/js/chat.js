@@ -1,13 +1,18 @@
 window.addEventListener("load", chat_func);
 
 function chat_func() {
-  var room_name = document.getElementById('room_name').getAttribute('value');
-  var master_id = document.getElementById('master_id').getAttribute('value');
-  var master = document.getElementById('master_name').getAttribute('value');
+
+  let default_values = document.getElementById('default_values')
+  let room_name = default_values.getAttribute('data-room_name')
+  let master = default_values.getAttribute('data-master_name')
+  if(!room_name || !master){
+    return
+  }
+  let message_action_url = default_values.getAttribute('data-action-url');
+
 
   let send_message_btn = document.getElementById('send_message_btn');
   let send_message_form = document.getElementById('send_message_form');
-  let chat_table = document.getElementById('chat_table');
   let chat_table_body = document.getElementById('chat_table_body');
   let chat_window = document.getElementById('chat_window');
   let ws_scheme = window.location.protocol == "https:" ? "wss://" : "ws://";
@@ -16,9 +21,13 @@ function chat_func() {
 
   chat_window.scrollTop = chat_window.scrollHeight;
 
-
+  // process received message
   chatsock.onmessage = function(event) {
       let message = JSON.parse(event.data)['message'];
+      if(!message){
+        return;
+      }
+
       let tr = document.createElement("tr");
       tr.setAttribute("class", "chat__table_message");
       let td_time = document.createElement("td");
@@ -33,7 +42,7 @@ function chat_func() {
         td_content.setAttribute("class", "chat__table_message_content chat__table_message_written_by_owner");
         let i_elem = document.createElement("i");
         i_elem.setAttribute("class", "far fa-trash-alt");
-        i_elem.setAttribute("data-action-url", "/message_action/");
+        i_elem.setAttribute("data-action-url", message_action_url);
         i_elem.setAttribute("data-message-id", message.message_id);
         i_elem.setAttribute("data-action", "remove");
         i_elem.onclick = action_on_user_message;
@@ -43,7 +52,7 @@ function chat_func() {
       else{
         td_content.setAttribute("class", "chat__table_message_content");
       }
-      
+
       tr.appendChild(td_content);
       tr.appendChild(td_trash);
 
@@ -66,17 +75,10 @@ function chat_func() {
       chatsock.send(JSON.stringify(message));
       send_message_form_text.value = "";
       send_message_form_text.focus();
-
-      // $("#message").val('').focus();
-      // return false;
     }
   }
-  // console.log(send_message_form);
   send_message_form.onkeypress = function(e) {
-    // if(e.which == 13 && e.ctrlKey) {
-    //   send_message_btn.onclick();
-    // }
-
+    // send message on Enter
     if(e.which == 13) {
       send_message_btn.onclick();
     }
@@ -101,14 +103,14 @@ function chat_func() {
       action: action,
       message_id: message_id
       };
-      
+
     post_request(data, path).then(function(response){
       response = JSON.parse(response);
       if(response['result'] == true){
         if(action == 'remove'){
           // TODO looks bad
           cur.parentNode.parentNode.remove();
-        } 
+        }
       }
 
     });

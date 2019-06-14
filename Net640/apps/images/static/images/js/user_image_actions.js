@@ -10,7 +10,6 @@ function user_image_actions_func(){
     });
 
     function action_on_user_image(event){
-      //debugger;
 
       let cur = event.currentTarget;
       let action = cur.getAttribute('data-action');

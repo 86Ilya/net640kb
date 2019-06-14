@@ -4,3 +4,4 @@ helpers
 logs/
 __pycache__
 *.develop
+clean.sh

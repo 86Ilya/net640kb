@@ -8,6 +8,15 @@
 {% endblock %}
 
 {% block content %}
+<!-- default values -->
+<div id="default_values" class="d-none"
+     data-room_name="{{room_name}}"
+     data-master_name="{{user.username}}"
+     data-action-url="{% url 'user_message_action' %}"
+     >
+</div>
+<!-- end of default values -->
+
 
 <div class="container">
 
@@ -42,9 +51,6 @@
         {% csrf_token %}
         <textarea name="content" class="w-75" id="send_message_form_text"></textarea>
         <div class="btn btn-secondary w-75" id="send_message_btn">Send Message</div>
-        <input type="hidden" id="room_name" value="{{room_name}}" />
-        <input type="hidden" id="master_id" value="{{user.id}}" />
-        <input type="hidden" id="master_name" value="{{user.username}}" />
       </form>
     </div>
   </div>

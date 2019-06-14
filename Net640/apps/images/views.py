@@ -1,9 +1,10 @@
 import os
 import logging
+import mimetypes
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods, require_POST, require_GET
@@ -12,14 +13,21 @@ from Net640.apps.images.forms import ImageForm
 from Net640.apps.images.models import Image
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 from Net640.errors import NotEnoughSpace
+from Net640.settings import MEDIA_ROOT
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
+users_media = os.path.join(MEDIA_ROOT, 'users')
 
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def user_images_view(request):
+    """
+    This view gives us a page with images album of logged user.
+    In POST method this view will add new image.
+    """
     master = request.user
 
     images = []
@@ -74,25 +82,21 @@ def user_image_action(request):
 
 @require_GET
 def get_image(request, username, imagename):
+    """
+    This function are working in cooperation with Nginx.
+    Function is checking permission on requested resource before giving it to user.
+    """
     master = request.user
     user = get_object_or_404(User, username=username)
     if master == user or master.check_relationship(user) == RELATIONSHIP_FRIENDS:
-        # TODO remove hardcode
-        file_on_disk = '/app' + request.path
+        file_on_disk = os.path.join(users_media, username, imagename)
         file_size = os.path.getsize(file_on_disk)
-        file_type = file_on_disk.split('.')[-1].lower()
-        if file_type == 'jpg':
-            content_type = 'image/jpg'
-        elif file_type == 'png':
-            content_type = 'image/png'
-        else:
-            content_type = ''
-
+        content_type, _ = mimetypes.guess_type(imagename)
         response = HttpResponse()
         response.status_code = 200
         response['X-Accel-Redirect'] = request.path
         response['Content'] = content_type
         response['Content-length'] = file_size
     else:
-        response = Http404
+        response = HttpResponseNotFound("File not found:{}".format(imagename))
     return response

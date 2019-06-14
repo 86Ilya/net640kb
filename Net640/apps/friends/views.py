@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from Net640.apps.user_posts.models import Post
+from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 
 User = get_user_model()
 
@@ -12,12 +13,18 @@ User = get_user_model()
 @login_required
 @require_http_methods(["GET", "POST"])
 def friends_view(request):
+    """
+    This view renders page that shows all friend and all requests for relationship
+    """
     master = User.objects.get(pk=request.user.id)
     if request.method == "POST" and request.POST.get("action", False):
         return JsonResponse(friends_view_post_action(master, request.POST))
 
+    # our friends.
     friends = master.get_friends()
+    # requests from another person's
     waiting_for_accept = master.get_waiting_for_accept()
+    # requests that we had send for new relationships
     sended_requests = master.get_requests_for_relationship()
 
     context = {'username': master.username,
@@ -30,6 +37,12 @@ def friends_view(request):
 
 
 def friends_view_post_action(master, post):
+    """
+    Process any action on modifying relationship:
+     - send request for relationship
+     - accept request
+     - remove friend
+    """
     person = None
     action = post["action"]
     user_id = post.get("user_id", False)
@@ -37,7 +50,7 @@ def friends_view_post_action(master, post):
 
     if user_id:
         person = User.objects.get(pk=user_id)
-    # Получим список друзей и заявок
+    # Get list of all our friends
     if person and action == "cancel":
         result = master.cancel(person)
 
@@ -59,6 +72,9 @@ def friends_view_post_action(master, post):
 @login_required
 @require_http_methods(["GET", "POST"])
 def user_view(request, user_id):
+    """
+    This view shows to us personal page of somebody
+    """
     master = User.objects.get(pk=request.user.id)
     if int(user_id) == master.id:
         return redirect('mainpage')
@@ -83,21 +99,24 @@ def user_view_post(master, page_owner, post):
     action = post["action"]
     result = {'status': False}
     if action == "add":
-        # Отправим запрос на добавление пользователя в друзья
+        # Send request for adding to friends
         result = master.accept(page_owner)
-    # Получим информацию о пользователе (статус отношении, посты)
+    # Get information about user (relationship status, posts...)
     elif action == "get_user_info":
         relationship_status = master.check_relationship(page_owner)
         posts = []
-        for post in Post.objects.filter(author=page_owner)[:10]:
-                posts.append({'content': post.content,
-                              'user_has_like': post.has_like(master),
-                              'rating': round(post.get_rating(), 1),
-                              'author': post.author.username,
-                              'author_id': post.author.id,
-                              'date': post.date.strftime('%b %d, %Y'),
-                              'id': post.id,
-                              'author_thumbnail_url': post.author.get_thumbnail_url(), })
+        # Only friend can see posts
+        if relationship_status == RELATIONSHIP_FRIENDS:
+            for post in Post.objects.filter(user=page_owner)[:10]:
+                    posts.append({'content': post.content,
+                                  'user_has_like': post.has_like(master),
+                                  'rating': round(post.get_rating(), 1),
+                                  'author': post.user.username,
+                                  'author_id': post.user .id,
+                                  'date': post.date.strftime('%b %d, %Y'),
+                                  'image_url': post.get_image_url(),
+                                  'id': post.id,
+                                  'author_thumbnail_url': post.user.get_thumbnail_url(), })
         result = {'relationship_status': relationship_status,
                   'posts': posts,
                   'page_owner': {'id': page_owner.id, 'username': page_owner.username},
