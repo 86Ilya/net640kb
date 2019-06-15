@@ -19,7 +19,7 @@
         </fieldset>
           <label for="id_image" class="btn btn-secondary w-100 mx-auto">Select image</label>
           <div class="row mt-2 mb-2">
-            <img src="" id="image" class="w-50 mx-auto"/>
+            <img src="" id="preview_image" data-id-input-image="id_image" class="w-50 mx-auto"/>
           </div>
           <button class="btn btn-secondary w-100 mx-auto" type="submit">Upload</button> 
       </form>
@@ -54,5 +54,5 @@
 {% load static %}
 <script type="text/javascript" src='{% static 'js/basic_func.js' %}'></script>
 <script type="text/javascript" src='{% static 'images/js/user_image_actions.js' %}'></script>
-<script type="text/javascript" src='{% static 'images/js/image_preview.js' %}'></script>
+<script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
 {% endblock %}

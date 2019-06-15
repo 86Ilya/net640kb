@@ -11,7 +11,8 @@
                   {{update_form}}
                 </fieldset>
                 <div class="row mt-2 mb-2">
-                  <img src="{{user.get_avatar_url}}" id="avatar_image" class="w-50 mx-auto"/>
+                  {#<img src="{{user.get_avatar_url}}" id="avatar_image" class="w-50 mx-auto"/>#}
+                  <img src="{{user.get_avatar_url}}" id="preview_image" data-id-input-image="id_avatar" class="w-50 mx-auto"/>
                 </div>
                 <input type="submit" class="btn btn-primary w-100" id="submit_button" value="Update"></input>
             </form>
@@ -21,7 +22,6 @@
       </div>
     </div>
 
-<script type="text/javascript" src='{% static "user_profile/js/avatar_preview.js" %}'></script>
+<script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
 <script type="text/javascript" src='{% static "user_profile/js/prevent_password_mismatch.js" %}'></script>
-{#<script type="text/javascript" src='{% static "js/update_personal_data.js" %}'></script>#}
 {% endblock %}

@@ -21,7 +21,7 @@
         {{ post_form }}
 
         <div class="row mt-2 mb-2">
-          <img src="" id="preview_image" class="w-50 mx-auto d-none"/>
+          <img src="" id="preview_image" data-id-input-image="id_image" class="w-50 mx-auto d-none"/>
         </div>
         <input type="submit" class ="btn btn-secondary w-100" value="Send Post"> 
       </form>
@@ -82,5 +82,5 @@
 {% load static %}
 <script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
 <script type="text/javascript" src='{% static 'user_posts/js/user_post_actions.js' %}'></script>
-<script type="text/javascript" src='{% static 'user_posts/js/user_post_dragndrop.js' %}'></script>
+<script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
 {% endblock %}
