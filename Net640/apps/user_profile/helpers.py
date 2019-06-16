@@ -1,7 +1,12 @@
 from django.contrib.auth import get_user_model
 from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
 
+
 User = get_user_model()
+
+
+def check_user_auth(user):
+    return user.is_authenticated
 
 
 def base(request):
