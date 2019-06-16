@@ -1,6 +1,5 @@
 import json
-from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, AsyncJsonWebsocketConsumer
-from asgiref.sync import async_to_sync
+from channels.generic.websocket import AsyncWebsocketConsumer, AsyncJsonWebsocketConsumer
 
 from Net640.apps.chat.models import Message
 from Net640.errors import NotEnoughSpace

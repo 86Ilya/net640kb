@@ -108,15 +108,7 @@ def user_view_post(master, page_owner, post):
         # Only friend can see posts
         if relationship_status == RELATIONSHIP_FRIENDS:
             for post in Post.objects.filter(user=page_owner)[:10]:
-                    posts.append({'content': post.content,
-                                  'user_has_like': post.has_like(master),
-                                  'rating': round(post.get_rating(), 1),
-                                  'author': post.user.username,
-                                  'author_id': post.user .id,
-                                  'date': post.date.strftime('%b %d, %Y'),
-                                  'image_url': post.get_image_url(),
-                                  'id': post.id,
-                                  'author_thumbnail_url': post.user.get_thumbnail_url(), })
+                posts.append(post.as_dict(master))
         result = {'relationship_status': relationship_status,
                   'posts': posts,
                   'page_owner': {'id': page_owner.id, 'username': page_owner.username},

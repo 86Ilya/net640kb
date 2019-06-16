@@ -1,4 +1,4 @@
-<div v-if="posts.length > 0" class="container mt-5">
+<div v-if="posts" class="container mt-5">
       <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
         <div class="col-12 col-md-8 mx-auto">
           <div v-if="post.image_url" class="row">
@@ -17,7 +17,7 @@
           </div>
           <div class="row">
             <div class="col-1 text-center align-self-right">
-              <div class="badge badge-dark">[[post.rating]]</div>
+              <div class="badge badge-dark">[[post.rating.toFixed(1)]]</div>
             </div>
             <div class="col-1">
               <i v-if="post.user_has_like" class="fas fa-heart" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>

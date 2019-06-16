@@ -88,24 +88,14 @@ def user_news(request):
     return render(request, 'news.html', context)
 
 
-def user_news_post_action(master, post):
-    action = post["action"]
+def user_news_post_action(master, post_request):
+    action = post_request["action"]
     result = {'status': False}
     posts = list()
     # get news
     if action == "get_news":
         for post in Post.objects.raw(news_query, [RELATIONSHIP_FRIENDS, master.id])[:10]:
-            posts.append({'content': post.content,
-                          'user_has_like': post.has_like(master),
-                          'rating': round(post.get_rating(), 1),
-                          'author': post.user.username,
-                          # TODO reverse link
-                          'author_page': '/id' + str(post.user.id),
-                          'date': post.date.strftime('%b %d, %Y'),
-                          'image_url': post.get_image_url(),
-                          'id': post.id,
-                          'author_thumbnail_url': post.user.get_thumbnail_url(), })
-
+            posts.append(post.as_dict(master))
         result = {'posts': posts,
                   'status': True}
     else:

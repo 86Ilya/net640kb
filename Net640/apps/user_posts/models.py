@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 
 from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
@@ -48,3 +49,14 @@ class Post(LikesMixin, models.Model):
                 })
         finally:
             super().delete(*args, **kwargs)
+
+    def as_dict(self, executor):
+        return {'content': self.content,
+                'user_has_like': self.has_like(executor),
+                'rating': round(self.get_rating(), 1),
+                'author': self.user.username,
+                'author_page': reverse('user_view', kwargs={'user_id': self.user.id}),
+                'date': self.date.strftime('%b %d, %Y'),
+                'image_url': self.get_image_url(),
+                'id': self.id,
+                'author_thumbnail_url': self.user.get_thumbnail_url(), }
