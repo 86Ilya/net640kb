@@ -7,7 +7,6 @@ from Net640.apps.user_posts.models import Post
 from Net640.apps.user_posts.forms import PostForm
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 from Net640.apps.user_profile.helpers import check_user_auth
-from Net640.errors import NotEnoughSpace
 
 news_query = "select user_posts_post.id from user_posts_post\
                 left join user_profile_relationship on user_profile_relationship.to_person_id=user_posts_post.user_id\
@@ -21,35 +20,37 @@ def mainpage_view(request):
     context = {'user_login': user_login}
 
     if user_login:
-        master = request.user
-        posts = list()
+        post_form = PostForm()
         if request.method == "POST":
-            post_form = PostForm(request.POST, request.FILES, user=request.user)
-            if post_form.is_valid():
+            action = request.POST.get('action', None)
+            if action:
+                result = mainpage_post_action(request, action)
+                context.update(result)
+                return JsonResponse(context)
+            new_post_form = PostForm(request.POST, request.FILES, user=request.user)
+            if new_post_form.is_valid():
                 try:
-                    new_post = post_form.save(commit=False)
+                    new_post = new_post_form.save(commit=False)
                     new_post.user = request.user
                     new_post.save()
-                except NotEnoughSpace:
+                except Exception:
                     pass
-                else:
-                    post_form = PostForm
-        else:
-            post_form = PostForm
-
-        for post in Post.objects.filter(user=master)[:10]:
-            posts.append({'content': post.content,
-                          'user_has_like': post.has_like(master),
-                          'rating': post.get_rating(),
-                          'author': post.user,
-                          'date': post.date,
-                          'image_url': post.get_image_url(),
-                          'id': post.id, })
-
-        context.update({'posts': posts, 'post_form': post_form, 'firstname': request.user.firstname})
+            else:
+                # show form errors to user
+                post_form = new_post_form
+        context.update({'posts': [], 'post_form': post_form})
         return render(request, 'main_page.html', context)
     else:
         return render(request, 'info.html')
+
+
+def mainpage_post_action(request, action):
+    master = request.user
+    posts = list()
+    if action == 'get_own_posts':
+        for post in Post.objects.filter(user=master)[:10]:
+            posts.append(post.as_dict(master))
+        return {'posts': posts}
 
 
 @login_required

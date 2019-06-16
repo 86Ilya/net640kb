@@ -1,7 +1,7 @@
 from django.test import TestCase
 from Net640.apps.user_profile.models import User
-from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS, RELATIONSHIP_REQUEST_HAS_SENT,\
-                                            RELATIONSHIP_WAITING_FOR_ACCEPT, NO_RELATIONSHIP
+from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS, RELATIONSHIP_REQUEST_HAS_SENT
+from Net640.apps.user_profile.models import RELATIONSHIP_WAITING_FOR_ACCEPT, NO_RELATIONSHIP
 
 
 class TestUserPermission(TestCase):

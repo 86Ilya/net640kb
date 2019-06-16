@@ -43,11 +43,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             chat_message.save()
             response = {
-                        'content': chat_message.content,
-                        'timestamp': chat_message.formatted_timestamp,
-                        'author': chat_message.author.username,
-                        'message_id': chat_message.id,
-                       }
+                'content': chat_message.content,
+                'timestamp': chat_message.formatted_timestamp,
+                'author': chat_message.author.username,
+                'message_id': chat_message.id,
+            }
 
         except NotEnoughSpace:
             # TODO send notificatin via update_flow

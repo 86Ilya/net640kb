@@ -23,6 +23,9 @@
               <i v-if="post.user_has_like" class="fas fa-heart" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
               <i v-else class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
             </div>
+            <div v-if="post.is_owner" class="col-1 offset-9 text-right align-self-right">
+              <i class="far fa-trash-alt" v-on:click="action_on_user_post" data-action='remove' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
+            <div>
           </div>
         </div>
       </div>

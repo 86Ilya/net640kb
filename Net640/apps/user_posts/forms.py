@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from Net640.apps.user_posts.models import Post
 from Net640.settings import MAX_PAGE_SIZE
-# from Net640.errors import ERR_EXCEED_LIMIT
 
 
 class PostForm(forms.ModelForm):

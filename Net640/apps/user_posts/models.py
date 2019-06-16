@@ -53,6 +53,7 @@ class Post(LikesMixin, models.Model):
     def as_dict(self, executor):
         return {'content': self.content,
                 'user_has_like': self.has_like(executor),
+                'is_owner': self.user == executor,
                 'rating': round(self.get_rating(), 1),
                 'author': self.user.username,
                 'author_page': reverse('user_view', kwargs={'user_id': self.user.id}),

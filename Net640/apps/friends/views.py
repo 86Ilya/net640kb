@@ -86,12 +86,12 @@ def user_view(request, user_id):
         return JsonResponse(result)
 
     context = {
-                'relationship_status': relationship_status,
-                'page_owner_username': page_owner.username,
-                'page_owner_id': page_owner.id,
-                'page_owner_size': page_owner.get_size(),
-                'user': master,
-              }
+        'relationship_status': relationship_status,
+        'page_owner_username': page_owner.username,
+        'page_owner_id': page_owner.id,
+        'page_owner_size': page_owner.get_size(),
+        'user': master,
+    }
     return render(request, 'user_view.html', context)
 
 

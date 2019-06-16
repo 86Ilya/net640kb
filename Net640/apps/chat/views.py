@@ -21,7 +21,7 @@ def chat_room(request, person_id):
     user_to_chat = get_object_or_404(User, pk=person_id)
     id_list = [request.user.pk, int(person_id)]
     id_list.sort()
-    room_name = "room_"+str(id_list[0])+"_with_"+str(id_list[1])
+    room_name = "room_" + str(id_list[0]) + "_with_" + str(id_list[1])
 
     # show messages stored id DB to user
     messages = Message.objects.filter(chat_room=room_name)
