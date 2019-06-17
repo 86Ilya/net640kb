@@ -1,17 +1,21 @@
 <div v-if="posts" class="container mt-5">
-      <div v-for="post in posts" class="row posts_list__item w-75 mx-auto">
-        <div class="col-12 col-md-8 mx-auto">
+      <div v-for="post in posts" class="row posts_list__item w-90 mx-auto">
+        <div class="col-12 col-md-9 mx-auto">
           <div v-if="post.image_url" class="row">
               <img v-bind:src="post.image_url" class="col-12 mx-auto">
           </div>
           <div class="row">
-            <div class="col-12">
+            <div class="col-10">
               <div class="wordwrap">
                 [[post.content]]
               </div>
+            </div>
+            <div class="col-2 text-right">
+              <a v-bind:href=post.author_page>
+                <img v-bind:src="post.author_thumbnail_url"/>
+              </a>
               <div class="posts_list__item_author_and_date">
-                [[post.author]]
-                [[post.date]]
+                [[post.author]] [[post.date]]
               </div>
             </div>
           </div>
