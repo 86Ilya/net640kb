@@ -2,10 +2,17 @@ window.addEventListener("load", mainpage_func);
 
 function mainpage_func(){
     let default_values = document.getElementById("default_values")
+    let copy_link_btn = document.getElementById("copy_link")
+    let user_url = window.location.host + '/id' + copy_link_btn.getAttribute("data-user-id");
     let post_action_url = default_values.getAttribute('data-action-url');
 
     let doc_path = window.location.pathname;
-    let csrftoken = document.querySelectorAll('input[name=csrfmiddlewaretoken]')[0].value;
+    let csrftoken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+
+    copy_link_btn.onclick = () => {
+      copy_to_clipboard(user_url);
+      alert("Copied the text: " + user_url);
+    }
 
     var vue_app = new Vue({
       el: '#vue_mainpage_app',
@@ -76,3 +83,15 @@ function action_on_user_post(event){
         }
       });
 }
+
+function copy_to_clipboard(text_to_copy){
+  const el = document.createElement('textarea');
+  el.value = text_to_copy;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+};

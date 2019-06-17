@@ -7,11 +7,12 @@
 {% endblock %}
 
 {% block content %}
-{% if user_login %}
+{% if user %}
 <div class="container">
   <div class="row mt-2 no_link_behaviour">
     <a class="col-8 col-md-2 mr-2 menu__item" href="/my_images/">My images</a>
-    <a class="col-8 col-md-2 menu__item" href="/profile">My profile</a>
+    <a class="col-8 col-md-2 mr-2 menu__item" href="/profile">My profile</a>
+    <a class="col-8 col-md-2 offset-md-5 menu__item" id="copy_link" data-user-id={{user.id}}>Copy link to my profile</a>
   </div>
 
   <div class="row mt-3">

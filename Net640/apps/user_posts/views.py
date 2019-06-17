@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from Net640.apps.user_posts.models import Post
 from Net640.apps.user_posts.forms import PostForm
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
-from Net640.apps.user_profile.helpers import check_user_auth
+from Net640.apps.user_profile.helpers import check_user_auth, base
 
 news_query = "select user_posts_post.id from user_posts_post\
                 left join user_profile_relationship on user_profile_relationship.to_person_id=user_posts_post.user_id\
@@ -16,15 +16,16 @@ news_query = "select user_posts_post.id from user_posts_post\
 
 @require_http_methods(["GET", "POST"])
 def mainpage_view(request):
-    user_login = check_user_auth(request.user)
-    context = {'user_login': user_login}
+    context = base(request)
 
-    if user_login:
+    if context['user']:
         post_form = PostForm()
         if request.method == "POST":
             action = request.POST.get('action', None)
             if action:
                 result = mainpage_post_action(request, action)
+                # TODO add serializer to user
+                context.update({'user': {'username': context['user'].username, 'id': context['user'].id}})
                 context.update(result)
                 return JsonResponse(context)
             new_post_form = PostForm(request.POST, request.FILES, user=request.user)
