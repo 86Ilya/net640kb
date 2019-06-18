@@ -1,10 +1,10 @@
-from datetime import datetime
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 
 from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
@@ -17,7 +17,7 @@ CHANNEL_LAYER = get_channel_layer()
 class Post(LikesMixin, models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
-    date = models.DateTimeField(default=datetime.now, blank=True)
+    date = models.DateTimeField(default=timezone.now, blank=True)
     image = models.ImageField(upload_to=user_directory_path)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="post_likes")
 

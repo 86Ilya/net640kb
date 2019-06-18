@@ -1,7 +1,7 @@
 <div v-if="posts" class="container mt-5">
       <div v-for="post in posts" class="row posts_list__item w-90 mx-auto">
         <div class="col-12 col-md-9 mx-auto">
-          <div v-if="post.image_url" class="row">
+          <div v-if="post.image_url" class="row mt-1">
               <img v-bind:src="post.image_url" class="col-12 mx-auto">
           </div>
           <div class="row">
