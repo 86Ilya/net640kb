@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from Net640.apps.user_posts.models import Post
 from Net640.apps.user_posts.forms import PostForm
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
-from Net640.apps.user_profile.helpers import check_user_auth, base
+from Net640.apps.user_profile.helpers import base
 
 news_query = "select user_posts_post.id from user_posts_post\
                 left join user_profile_relationship on user_profile_relationship.to_person_id=user_posts_post.user_id\
