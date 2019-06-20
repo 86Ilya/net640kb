@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . /app
 
 RUN apt-get update
-RUN apt-get install -y python3-dev git
+RUN apt-get install -y python3-dev git vim mc
 
 ENV SECRET_KEY='g%!k-t#g0u1vxs!3^tsxot&pc@_mqx^w!5argczlvx*p(4e*3t'
 ENV DATABASE_PASSWORD=netpassword
