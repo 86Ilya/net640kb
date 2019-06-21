@@ -1,7 +1,6 @@
 import asyncio
 
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,7 +35,7 @@ class Message(models.Model):
         message_size += len(str(self.author_id))
         message_size += len(str(self.chat_room))
 
-        response = {'inc_user_page_size': message_size, 'error': False}
+        response = {'upd_user_page_size': message_size, 'error': False}
 
         if self.author.get_size() + message_size * 8 > MAX_PAGE_SIZE:
             response.update({'error': True, 'error_reason': 'not enough free space'})
@@ -65,12 +64,7 @@ class Message(models.Model):
             message_size += len(str(self.chat_room))
             if message_size:
                 # send decrement info
-                response = {'dec_user_page_size': message_size, 'error': False}
-                room_name = get_updateflow_room_name(self.author_id)
-                async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
-                    'type': 'update_flow',
-                    'message': response
-                })
+                self.author.msg_upd_page_size(-message_size)
         finally:
             super().delete(*args, **kwargs)
 

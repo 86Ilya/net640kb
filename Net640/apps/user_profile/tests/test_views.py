@@ -1,9 +1,12 @@
+import os
 from uuid import uuid1
 
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from Net640.apps.user_profile.models import User
+from Net640.testing.helpers import create_test_image
 
 
 class TestUserProfileViews(TestCase):
@@ -63,3 +66,21 @@ class TestUserProfileViews(TestCase):
         self.assertEqual(user_from_db.lastname, 'My Last Name')
         self.assertEqual(user_from_db.patronymic, 'My Patronymic')
         self.assertTrue(user_from_db.check_password('87654321'))
+
+    def test_profile_remove_avatar(self):
+        img_file, content_type = create_test_image()
+        random_name = str(uuid1())
+
+        user = User(username=random_name, email=random_name + '@m.ru',
+                    avatar=SimpleUploadedFile('myimage.bmp', img_file.read(), content_type))
+        user.set_password('12345678')
+        user.save()
+        # check before deletion
+        self.assertTrue(os.path.exists(user.avatar.path))
+
+        client = Client()
+        client.login(username=user.username, password='12345678')
+        response = client.post(reverse('profile'), {'action': 'remove_avatar'})
+        self.assertEqual(response.status_code, 200)
+        # check after deletion
+        self.assertFalse(os.path.exists(user.avatar.path))

@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from Net640.settings import STATIC_URL
 from Net640.apps.images.models import Image, user_avatar_path
 from Net640.apps.user_posts.models import Post
+from Net640.apps.updateflow.mixin import UpdateFlowMixin
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
@@ -94,7 +95,7 @@ class GetSizeMixin:
         return size
 
 
-class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
+class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     username = models.CharField(_('username'), unique=True, max_length=120, null=True)
     email = models.EmailField(_('email address'), unique=True)
     firstname = models.CharField(_('first name'), max_length=120, null=True)

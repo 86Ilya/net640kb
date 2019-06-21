@@ -1,14 +1,9 @@
 import uuid
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 
 from django.db import models
 from django.conf import settings
 
 from Net640.mixin import LikesMixin
-
-
-CHANNEL_LAYER = get_channel_layer()
 
 
 def user_directory_path(instance, filename):
@@ -40,9 +35,4 @@ class Image(LikesMixin, models.Model):
         super().delete(*args, **kwargs)
         if image_size:
             # send decrement info
-            response = {'dec_user_page_size': image_size, 'error': False}
-            room_name = str(author_id) + '_update_flow'
-            async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
-                'type': 'update_flow',
-                'message': response
-            })
+            self.user.msg_upd_page_size(-image_size)

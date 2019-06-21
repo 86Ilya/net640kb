@@ -1,23 +1,11 @@
 from uuid import uuid1
-from io import BytesIO
-from PIL import Image
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from Net640.apps.user_posts.forms import PostForm
 from Net640.apps.user_profile.models import User
-
-
-def create_test_image(side_len=50):
-    # TODO create big jpeg files
-    file = BytesIO()
-    image = Image.new('RGB', size=(side_len, side_len), color=(155, 0, 0))
-    image.save(file, 'BMP')
-    file.name = 'test.bmp'
-    file.seek(0)
-    content_type = 'image/bmp'
-    return file, content_type
+from Net640.testing.helpers import create_test_image
 
 
 class TestUserPostForm(TestCase):

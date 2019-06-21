@@ -1,8 +1,5 @@
 import os
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 from django.db import models
 from django.conf import settings
 from django.urls import reverse
@@ -10,10 +7,6 @@ from django.utils import timezone
 
 from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
-from Net640.apps.updateflow.helpers import get_updateflow_room_name
-
-
-CHANNEL_LAYER = get_channel_layer()
 
 
 class Post(LikesMixin, models.Model):
@@ -39,16 +32,11 @@ class Post(LikesMixin, models.Model):
             post_size += len(str(self.user_id))
             post_size += len(str(self.date))
             if self.image:
-                post_size += len(str(self.image))
+                post_size += self.image.size
             # TODO calculate likes
             if post_size:
                 # send decrement info
-                response = {'dec_user_page_size': post_size, 'error': False}
-                room_name = get_updateflow_room_name(self.user_id)
-                async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
-                    'type': 'update_flow',
-                    'message': response
-                })
+                self.user.msg_upd_page_size(-post_size)
         finally:
             super().delete(*args, **kwargs)
             if self.image:
