@@ -1,27 +1,51 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block css_rules %}
+<link rel='stylesheet' href="{% static 'vendor/css/fontawesome/all.css' %}" />
+{% endblock %}
+
 {% block title %}Update personal data{% endblock %}
 
 {% block content %}
-      <div class="row mt-3">
-        <div class="col-12 col-md-3 mx-auto">
-            <form method='post' id="update_personal_data__form" enctype="multipart/form-data">
-              {% csrf_token %}
-                <fieldset class="form-group">
-                  {{update_form}}
-                </fieldset>
-                <div class="row mt-2 mb-2">
-                  {#<img src="{{user.get_avatar_url}}" id="avatar_image" class="w-50 mx-auto"/>#}
-                  <img src="{{user.get_avatar_url}}" id="preview_image" data-id-input-image="id_avatar" class="w-50 mx-auto"/>
-                </div>
-                <input type="submit" class="btn btn-primary w-100" id="submit_button" value="Update"></input>
-            </form>
-            <div id="pre_submit"></div>
+<div class="container" id="vue_profile_app">
 
+  <div class="row mt-2 no_link_behaviour">
+    <a class="col-8 col-md-2 offset-md-10 menu__item" id="copy_link" data-user-id={{user.id}}>Copy link to my page</a>
+  </div>
+
+  <div class="row mt-3">
+    <div class="col-12 col-md-6 mx-auto">
+      <form method='post' id="update_personal_data__form" enctype="multipart/form-data">
+        <fieldset class="form-group">
+          {% csrf_token %}
+          {{update_form}}
+        </fieldset>
+        <div class="row mt-2 mb-2 text-center">
+          {% if user.avatar %}
+            <div class="col-10 offset-1">
+              <img src="{{user.get_avatar_url}}" id="preview_image" data-id-input-image="id_avatar" class="w-50 mx-auto"/>
+            </div>
+            <div class="col-1 my-top mx-auto">
+              <i class="far fa-trash-alt"></i>
+            </div>
+          {% else %}
+            <div class="col-10 mx-auto">
+              <img src="{{user.get_avatar_url}}" id="preview_image" data-id-input-image="id_avatar" class="w-50 mx-auto"/>
+            </div>
+          {% endif %}
         </div>
-      </div>
+        <input type="submit" class="btn btn-primary w-100" id="submit_button" value="Update"></input>
+      </form>
+      <div id="pre_submit"></div>
     </div>
+  </div>
 
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
 <script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
-<script type="text/javascript" src='{% static "user_profile/js/prevent_password_mismatch.js" %}'></script>
+<script type="text/javascript" src='{% static "user_profile/js/check_password.js" %}'></script>
+<script type="text/javascript" src='{% static "user_profile/js/profile.js" %}'></script>
 {% endblock %}

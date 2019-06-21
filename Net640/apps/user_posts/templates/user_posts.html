@@ -2,7 +2,7 @@
       <div v-for="post in posts" class="row posts_list__item w-90 mx-auto">
         <div class="col-12 col-md-9 mx-auto">
           <div v-if="post.image_url" class="row mt-1">
-              <img v-bind:src="post.image_url" class="col-12 mx-auto">
+              <img v-bind:src="post.image_url" class="col-12 mx-auto"/>
           </div>
           <div class="row">
             <div class="col-10">
@@ -29,7 +29,7 @@
             </div>
             <div v-if="post.is_owner" class="col-1 offset-9 text-right align-self-right">
               <i class="far fa-trash-alt" v-on:click="action_on_user_post" data-action='remove' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
-            <div>
+            </div>
           </div>
         </div>
       </div>

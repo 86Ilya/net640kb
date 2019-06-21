@@ -46,6 +46,3 @@ function submit_form_func(){
   }
 
 }
-
-
-

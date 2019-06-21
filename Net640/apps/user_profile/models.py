@@ -127,6 +127,11 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin):
         else:
             return DEFAULT_AVATAR_URL
 
+    def remove_avatar(self):
+        os.remove(self.avatar.path)
+        self.avatar = None
+        self.save()
+
     def get_thumbnail_url(self):
         if self.avatar:
             return self.avatar.url.split(".")[0] + "_thumbnail.png"

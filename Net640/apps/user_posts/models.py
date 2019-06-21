@@ -1,3 +1,5 @@
+import os
+
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
@@ -49,6 +51,8 @@ class Post(LikesMixin, models.Model):
                 })
         finally:
             super().delete(*args, **kwargs)
+            if self.image:
+                os.remove(self.image.path)
 
     def as_dict(self, executor):
         return {'content': self.content,
