@@ -6,3 +6,4 @@ __pycache__
 *.develop
 clean.sh
 *.swp
+migrations/

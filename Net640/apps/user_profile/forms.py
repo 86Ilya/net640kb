@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.hashers import make_password
-# from django.core.validators import ValidationError
+from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
@@ -9,8 +9,12 @@ from Net640.settings import MAX_PAGE_SIZE
 from Net640.errors import ERR_EXCEED_LIMIT
 
 
+username_validator = RegexValidator(r'^[\w\d_\-]+$',
+                                    "Username should contain only letters, digits, underscores, and dashes")
+
+
 class UserForm(forms.ModelForm):
-    username = forms.CharField(widget=forms.TextInput)
+    username = forms.CharField(widget=forms.TextInput, max_length=120, min_length=3, validators=[username_validator])
     email = forms.EmailField(widget=forms.EmailInput)
     password = forms.CharField(widget=forms.PasswordInput)
     password_again = forms.CharField(widget=forms.PasswordInput)
@@ -65,6 +69,9 @@ class UserForm(forms.ModelForm):
             form_size = 1
         for field_name in self.changed_data:
             if field_name in ['password_again']:
+                continue
+            if field_name == 'avatar':
+                form_size += cleaned_data['avatar'].size
                 continue
             form_size += len(str(cleaned_data[field_name]))
         if form_size > MAX_PAGE_SIZE:
