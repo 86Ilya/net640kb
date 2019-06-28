@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from Net640.apps.user_profile.models import User, RELATIONSHIP_FRIENDS, NO_RELATIONSHIP
 from Net640.apps.user_posts.models import Post
+from Net640.settings import MAX_PAGE_SIZE
 
 
 class TestUserPostViews(TestCase):
@@ -97,7 +98,7 @@ class TestUserPostViews(TestCase):
         self.assertEqual(post_from_db.id, post_from_view['id'])
 
     def test_create_post_from_mainpage_when_content_too_large(self):
-        post_content = "1" * 641 * 1024
+        post_content = "1" * (MAX_PAGE_SIZE + 1)
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
