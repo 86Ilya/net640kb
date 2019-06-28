@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
 from Net640.apps.user_profile.models import User
-from Net640.settings import MAX_PAGE_SIZE
+from Net640.settings import MAX_PAGE_SIZE, DATE_FORMAT
 from Net640.errors import ERR_EXCEED_LIMIT
 
 
@@ -100,8 +100,7 @@ class UserUpdateForm(UserForm):
     firstname = forms.CharField(widget=forms.TextInput)
     lastname = forms.CharField(widget=forms.TextInput)
     patronymic = forms.CharField(widget=forms.TextInput)
-    # birth_date = forms.DateField(widget=forms.DateInput, input_formats=['%d-%m-%Y', '%d.%m.%Y'])
-    birth_date = forms.DateField(widget=forms.DateInput, input_formats=['%d.%m.%Y'])
+    birth_date = forms.DateField(widget=forms.DateInput, input_formats=[DATE_FORMAT])
 
     class Meta(UserForm.Meta):
         fields = ('firstname', 'lastname', 'patronymic', 'birth_date', 'password', 'password_again', 'avatar')
@@ -140,7 +139,7 @@ class UserUpdateForm(UserForm):
         self.fields['birth_date'].widget.attrs.update({
             'placeholder': 'Birth Date', 'class': 'form-control mb-3'
         })
-        self.fields['birth_date'].widget.format = '%d.%m.%Y'
+        self.fields['birth_date'].widget.format = DATE_FORMAT
         self.fields['birth_date'].help_text = ''
         self.fields['birth_date'].label = ''
 
@@ -159,23 +158,21 @@ class UserUpdateForm(UserForm):
                 index = self.changed_data.index('password')
                 self.changed_data.pop(index)
                 cleaned_data.pop('password')
+        # get approximate size of user fields
+        original_sizes = self.instance.get_fields_size()
         # check delta for all fields except password_again (not exist in DB)
         for field_name in self.changed_data:
             if field_name in ['password_again']:
                 continue
-
-            original_value = getattr(self.instance, field_name)
-            if not original_value:
-                original_len = 0
-            else:
-                original_len = len(original_value)
-
             updated_value = cleaned_data[field_name]
             if not updated_value:
                 updated_len = 0
+            elif field_name == 'avatar':
+                updated_len = updated_value.size
             else:
                 updated_len = len(str(updated_value))
 
+            original_len = original_sizes[field_name]
             delta += updated_len - original_len
 
         if self.instance.get_size() + delta > MAX_PAGE_SIZE:

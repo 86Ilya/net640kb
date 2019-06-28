@@ -10,6 +10,8 @@ Other functions are similiar to most popular social networks:
 - Chat with friends
 - Browse news
 
+[Read more about this project](article.md)
+
 ## Getting Started
 
 This project developed for running in the docker container.

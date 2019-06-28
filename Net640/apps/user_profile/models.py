@@ -296,6 +296,43 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
 
         return {'status': success, 'relationship_status': relationship_upd}
 
+    def get_fields_size(self):
+        l_username = 0
+        l_email = 0
+        l_firstname = 0
+        l_lastname = 0
+        l_patronymic = 0
+        l_birth_date = 0
+        l_avatar = 0
+        l_password = 0
+
+        if self.username:
+            l_username = len(self.username)
+        if self.email:
+            l_email = len(self.email)
+        if self.firstname:
+            l_firstname = len(self.firstname)
+        if self.lastname:
+            l_lastname = len(self.lastname)
+        if self.patronymic:
+            l_patronymic = len(self.patronymic)
+        if self.birth_date:
+            l_birth_date = len(str(self.birth_date))
+        if self.avatar:
+            l_avatar = self.avatar.size
+        if self.password:
+            l_password = len(self.password)
+
+        return {'username': l_username,
+                'email': l_email,
+                'firstname': l_firstname,
+                'lastname': l_lastname,
+                'patronymic': l_patronymic,
+                'birth_date': l_birth_date,
+                'avatar': l_avatar,
+                'password': l_password,
+                }
+
     def __str__(self):
         return self.username
 
