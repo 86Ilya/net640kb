@@ -1,7 +1,7 @@
 # 640Kb ought to be enough for anyone
 
 ___This article is devoted to final work on the Python Developer course.___
-[Russian version](article.md)
+[Russian version](article_ru.md)
 
 &nbsp; &nbsp; &nbsp;Nowadays, looking at the flow of information around us, we can confidently say that Orwell was wrong, and Huxley was right. Incredible amount of garbage in this stream makes it difficult to see valuable information. Interesting news overloaded by heavy scripts, forms, popups.
 
