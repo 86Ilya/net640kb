@@ -9,8 +9,10 @@ Other functions are similiar to most popular social networks:
 - Add/Remove friends
 - Chat with friends
 - Browse news
-
-[Read more about this project](article.md)
+## Simple view of main page
+![Simple view of main page](doc/images/main_page_view.png "Main page with post")
+<br>
+[Read more about this project](doc/article.md)
 
 ## Getting Started
 

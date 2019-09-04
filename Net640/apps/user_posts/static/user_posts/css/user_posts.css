@@ -1,0 +1,17 @@
+
+label[for="id_image"] {
+    color: #4d4d4d;
+    padding: 5px;
+    cursor: pointer;
+    background-color: white;
+
+}
+
+label[for="id_image"]::before {
+    font-family: "font awesome 5 free";
+    content: "\f0c6";
+    display: inline-block;
+    padding-right: 3px;
+    vertical-align: middle;
+    font-weight:900;
+}

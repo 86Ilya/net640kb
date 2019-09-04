@@ -28,8 +28,9 @@ class PostForm(forms.ModelForm):
             'class': 'form-control',
         })
         self.fields['image'].help_text = ''
-        self.fields['image'].label = ''
+        self.fields['image'].label = 'Attach'
         self.fields['image'].required = False
+        self.fields['image'].widget.attrs.update({'class': 'd-none'})
 
     def clean(self):
         cleaned_data = super().clean()
