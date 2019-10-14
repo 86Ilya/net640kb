@@ -57,6 +57,12 @@ class UserForm(forms.ModelForm):
         self.fields['password_again'].help_text = ''
         self.fields['password_again'].label = ''
 
+        # this code is for descendants
+        # remove unnecessary fields
+        unnecessary = set(self.fields.keys()) - set(self.Meta.fields)
+        for field in unnecessary:
+            self.fields.pop(field)
+
     def clean(self):
         cleaned_data = super().clean()
         validation_errors = list()
@@ -67,7 +73,8 @@ class UserForm(forms.ModelForm):
             form_size = len(str(User.objects.latest('id').id))
         except ObjectDoesNotExist:
             form_size = 1
-        for field_name in self.changed_data:
+        # if we already had errors, than we will skip this fields
+        for field_name in set(self.changed_data) - set(self.errors):
             if field_name in ['password_again']:
                 continue
             if field_name == 'avatar':
@@ -110,13 +117,6 @@ class UserUpdateForm(UserForm):
 
         for key in self.fields:
             self.fields[key].required = False
-
-        # TODO UGLY HACK
-        if self.fields.get('username', None):
-            self.fields.pop('username')
-
-        if self.fields.get('email', None):
-            self.fields.pop('email')
 
         self.fields['firstname'].widget.attrs.update({
             'placeholder': 'First Name', 'class': 'form-control mb-3'
@@ -179,3 +179,28 @@ class UserUpdateForm(UserForm):
             raise forms.ValidationError(_(ERR_EXCEED_LIMIT), code='oversize')
 
         return cleaned_data
+
+
+class UserRequestPasswordResetForm(forms.ModelForm):
+    # we have only one field in this form, so it's more easy to inherit from ModelForm
+    email = forms.EmailField(widget=forms.EmailInput)
+
+    class Meta:
+        model = User
+        fields = ('email',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({
+            'placeholder': 'Email', 'class': 'form-control mb-3'
+        })
+        self.fields['email'].help_text = ''
+        self.fields['email'].label = ''
+
+
+class UserPasswordUpdateForm(UserForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_again = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta(UserForm.Meta):
+        fields = ('password', 'password_again')

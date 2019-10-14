@@ -5,7 +5,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
 from Net640.apps.user_profile.models import User
-from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
+from Net640.apps.user_profile.forms import UserForm, UserUpdateForm,\
+    UserRequestPasswordResetForm, UserPasswordUpdateForm
 from Net640.testing.helpers import create_test_image
 from Net640.settings import DATE_FORMAT, MAX_PAGE_SIZE
 
@@ -35,8 +36,7 @@ class TestUserForm(TestCase):
                           'password_again': self.password,
                           }
         user_form = UserForm(user_form_data)
-        with self.assertRaises(KeyError):
-            user_form.is_valid()
+        self.assertFalse(user_form.is_valid())
         self.assertIn('Ensure this value has at most 120 characters', user_form.errors['username'][0])
 
     def test_user_from_when_username_is_too_short(self):
@@ -47,8 +47,7 @@ class TestUserForm(TestCase):
                           'password_again': self.password,
                           }
         user_form = UserForm(user_form_data)
-        with self.assertRaises(KeyError):
-            user_form.is_valid()
+        self.assertFalse(user_form.is_valid())
         self.assertIn('Ensure this value has at least 3 characters', user_form.errors['username'][0])
 
     def test_user_from_when_username_had_wrong_symbols(self):
@@ -59,8 +58,7 @@ class TestUserForm(TestCase):
                           'password_again': self.password,
                           }
         user_form = UserForm(user_form_data)
-        with self.assertRaises(KeyError):
-            user_form.is_valid()
+        self.assertFalse(user_form.is_valid())
         self.assertIn('Username should contain only letters, digits, underscores, and dashes',
                       user_form.errors['username'][0])
 
@@ -71,8 +69,7 @@ class TestUserForm(TestCase):
                           'password_again': self.password,
                           }
         user_form = UserForm(user_form_data)
-        with self.assertRaises(KeyError):
-            user_form.is_valid()
+        self.assertFalse(user_form.is_valid())
         self.assertEqual(user_form.errors['email'][0], 'Enter a valid email address.')
 
     def test_user_form_when_password_is_incorrect(self):
@@ -178,5 +175,79 @@ class TestUserUpdateForm(TestCase):
         update_form = UserUpdateForm({'password': newpass,
                                       'password_again': newpass},
                                      instance=self.user)
+        self.assertFalse(update_form.is_valid())
+        self.assertEqual(update_form.errors['__all__'][0], 'You have only 640Kb for all purposes!')
+
+
+class TestUserRequestPasswordResetForm(TestCase):
+
+    def test_request_password_reset_form_when_email_is_correct(self):
+        email = "xxx@m.ru"
+        reset_form = UserRequestPasswordResetForm({'email': email})
+        self.assertTrue(reset_form.is_valid())
+
+    def test_request_password_reset_form_when_email_is_too_long(self):
+        email = 'X' * 250 + "@m.ru"
+        reset_form = UserRequestPasswordResetForm({'email': email})
+        self.assertFalse(reset_form.is_valid())
+        self.assertIn('Ensure this value has at most 254 characters', reset_form.errors['email'][0])
+
+    def test_request_password_reset_form_when_email_had_wrong_symbols(self):
+        email = "xФxx@m.ru"
+        reset_form = UserRequestPasswordResetForm({'email': email})
+        # import pdb; pdb.set_trace()
+        self.assertFalse(reset_form.is_valid())
+        self.assertIn('Enter a valid email address.', reset_form.errors['email'][0])
+
+    def test_request_password_reset_form_when_email_is_simple_string(self):
+        email = "abc"
+        reset_form = UserRequestPasswordResetForm({'email': email})
+        self.assertFalse(reset_form.is_valid())
+        self.assertEqual(reset_form.errors['email'][0], 'Enter a valid email address.')
+
+
+class TestUserPasswordUpdateForm(TestCase):
+    def setUp(self):
+        random_name = str(uuid1())
+        email = random_name + '@m.ru'
+        self.user = User(username=random_name, email=email)
+        self.user.set_password('12345678')
+        self.user.firstname = 'user firstname'
+        self.user.lastname = 'user lastname'
+        self.user.patronymic = 'user patronymic'
+        self.user.birth_date = timezone.datetime(year=1986, month=4, day=10)
+        self.user.save()
+
+    def test_user_password_update_form(self):
+        newpass = 'qweasdzxc'
+        update_form = UserPasswordUpdateForm({'password': newpass,
+                                              'password_again': newpass},
+                                             instance=self.user)
+        self.assertTrue(update_form.is_valid())
+        update_form.save()
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(newpass))
+
+    def test_user_password_update_form_when_passwords_are_differ(self):
+        newpass = 'qweasdzxc'
+        update_form = UserPasswordUpdateForm({'password': newpass,
+                                              'password_again': newpass + "occasional symbols"},
+                                             instance=self.user)
+        self.assertFalse(update_form.is_valid())
+        self.assertEqual(update_form.errors['__all__'][0], 'Passwords mismatch')
+
+    def test_user_password_update_form_when_password_is_short(self):
+        newpass = 'x' * 7
+        update_form = UserPasswordUpdateForm({'password': newpass,
+                                              'password_again': newpass},
+                                             instance=self.user)
+        self.assertFalse(update_form.is_valid())
+        self.assertEqual(update_form.errors['__all__'][0], 'Password length must be at least 8 symbols')
+
+    def test_user_password_update_form_when_password_is_too_large(self):
+        newpass = 'x' * (MAX_PAGE_SIZE + 1)
+        update_form = UserPasswordUpdateForm({'password': newpass,
+                                              'password_again': newpass},
+                                             instance=self.user)
         self.assertFalse(update_form.is_valid())
         self.assertEqual(update_form.errors['__all__'][0], 'You have only 640Kb for all purposes!')

@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
-from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 
+from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
+from Net640.apps.user_profile.exceptions import UserException
 
 User = get_user_model()
 
@@ -26,11 +29,11 @@ def base(request):
 def save_user_by_form(request, context):
     valid = False
     user_form = UserForm(request.POST, request.FILES)
-    # context.update({'signup_form': user_form})
+    user_form.is_valid()
+
     if user_form.is_valid():
         valid = True
         user = user_form.save()
-        user.save()
         context['user'] = user
     return user_form, valid
 
@@ -39,7 +42,6 @@ def update_user_by_form(request, context):
     user = context['user']
     valid = False
     user_update_form = UserUpdateForm(request.POST, request.FILES, instance=user)
-    # context.update({'update_form': user_update_form})
     if user_update_form.is_valid():
         user_update = user_update_form.save(commit=False)
         user_update.save()
@@ -49,3 +51,16 @@ def update_user_by_form(request, context):
         # This is strange but user instance is changed after form validation
         context['user'].refresh_from_db()
     return user_update_form, valid
+
+
+def reset_password_for_email(email):
+    try:
+        user = User.objects.get(email=email)
+    except ObjectDoesNotExist:
+        raise UserException(_("User doesn't exist"))
+
+    if user:
+        try:
+            user.send_reset_password_link()
+        except Exception:
+            raise UserException(_("Something went wrong"))

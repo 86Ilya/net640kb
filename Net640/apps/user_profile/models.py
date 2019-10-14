@@ -1,5 +1,7 @@
 import os
 import logging
+import string
+import random
 from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
 
@@ -7,11 +9,14 @@ from django.db import models, connection
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
+from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
-from Net640.settings import STATIC_URL
+from Net640.settings import STATIC_URL, EMAIL_HOST_USER, SITE_ADDRESS
 from Net640.apps.images.models import Image, user_avatar_path
 from Net640.apps.user_posts.models import Post
 from Net640.apps.updateflow.mixin import UpdateFlowMixin
+from Net640.apps.user_profile.exceptions import UserException
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
@@ -95,6 +100,16 @@ class GetSizeMixin:
         return size
 
 
+class UserConfirmationCode(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
+
+
+class UserResetPassword(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
+
+
 class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     username = models.CharField(_('username'), unique=True, max_length=120, null=True)
     email = models.EmailField(_('email address'), unique=True)
@@ -105,7 +120,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     relationships = models.ManyToManyField('self', through='Relationship',
                                            symmetrical=False,
                                            related_name='related_to+')
-    is_active = models.BooleanField(default=True)  # default=False when you are going to implement Activation Mail
+    is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to=user_avatar_path, default=None)
 
@@ -113,6 +128,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+    run_once_methods = ["send_activation_code"]
 
     class Meta:
         verbose_name = _('user')
@@ -121,6 +137,14 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.create_thumbnail()
+        self.run_on_create_instance()
+
+    def run_on_create_instance(self):
+        """ Run the methods once when the instance is created"""
+        for name in self.run_once_methods:
+            method = getattr(self, name)
+            method()
+        self.run_once_methods = list()
 
     def get_avatar_url(self):
         if self.avatar:
@@ -138,6 +162,55 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             return self.avatar.url.split(".")[0] + "_thumbnail.png"
         else:
             return DEFAULT_THUMBNAIL_URL
+
+    def generate_random_code(self, code_length=120):
+        return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(code_length))
+
+    def send_activation_code(self):
+        code = self.generate_random_code()
+        confirmation = UserConfirmationCode(user=self, code=code)
+        confirmation.save()
+        try:
+            send_mail(
+                'Activation code for 640kb social network',
+                '{}confirm_email_id{}/{}'.format(SITE_ADDRESS, self.id, code),
+                EMAIL_HOST_USER,
+                [self.email],
+                fail_silently=False,
+            )
+        except Exception:
+            raise
+
+    def get_activation_code(self):
+        confirmation = UserConfirmationCode.objects.filter(user=self)[0]
+        if not confirmation:
+            raise UserException(_("Activation code not found"))
+        return confirmation.code
+
+    def send_reset_password_link(self):
+        code = self.generate_random_code()
+        reset_pass = UserResetPassword(user=self, code=code)
+        reset_pass.save()
+        try:
+            send_mail(
+                'Reset password link for 640kb social network',
+                '{}password_reset_id{}/{}'.format(SITE_ADDRESS, self.id, code),
+                EMAIL_HOST_USER,
+                [self.email],
+                fail_silently=False,
+            )
+        except Exception:
+            raise
+
+    def get_password_reset_code(self):
+        try:
+            password_reset = UserResetPassword.objects.get(user=self)
+        except ObjectDoesNotExist:
+            raise UserException(_("Password reset code not found"))
+        except MultipleObjectsReturned:
+            raise UserException(_("Something went wrong"))
+
+        return password_reset.code
 
     def create_thumbnail(self):
         # If there is no image associated with this.

@@ -12,12 +12,12 @@ class TestFriendsView(TestCase):
 
     def setUp(self):
         random_name = str(uuid1())
-        self.user1 = User(username=random_name, email=random_name + '@m.ru')
+        self.user1 = User(username=random_name, email=random_name + '@m.ru', is_active=True)
         self.user1.set_password(self.password)
         self.user1.save()
 
         random_name = str(uuid1())
-        self.user2 = User(username=random_name, email=random_name + '@m.ru')
+        self.user2 = User(username=random_name, email=random_name + '@m.ru', is_active=True)
         self.user2.set_password(self.password)
         self.user2.save()
 

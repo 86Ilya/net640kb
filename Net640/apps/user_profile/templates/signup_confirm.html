@@ -1,0 +1,25 @@
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% load static %}
+    <link rel='stylesheet' href='{% static 'vendor/css/bootstrap/bootstrap.min.css' %}' />
+    <title>Confirmation</title>
+  </head>
+  <body class="body">
+    <div class="container">
+      <div class="row mt-5">
+        <div class="col-12 col-md-6 mx-auto">
+          {% if confirmed %}
+          Your profile is confirmed!
+          {% else %}
+          There are errors during confirming your profile: {{reason}} 
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+
+</html>

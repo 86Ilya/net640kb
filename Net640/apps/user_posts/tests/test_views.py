@@ -12,12 +12,12 @@ from Net640.settings import MAX_PAGE_SIZE
 class TestUserPostViews(TestCase):
     def setUp(self):
         random_name = str(uuid1())
-        self.user = User(username=random_name, email=random_name + '@m.ru')
+        self.user = User(username=random_name, email=random_name + '@m.ru', is_active=True)
         self.user.set_password('12345678')
         self.user.save()
 
         random_name = str(uuid1())
-        self.friend = User(username=random_name, email=random_name + '@m.ru')
+        self.friend = User(username=random_name, email=random_name + '@m.ru', is_active=True)
         self.friend.set_password('12345678')
         self.friend.save()
 
