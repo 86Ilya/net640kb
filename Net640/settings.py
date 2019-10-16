@@ -3,6 +3,7 @@ import os
 MAX_PAGE_SIZE = 640 * 1024  # max user page size in bytes
 BYTES_IN_SYMB = 1
 SITE_ADDRESS = 'http://0.0.0.0:8080/'
+CACHE_TIMEOUT = 60 * 60
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -90,6 +91,13 @@ DATABASES = {
         'HOST': os.environ.get('DATABASE_HOST'),
         'PORT': '',
     }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://user_cache:6379/',
+    },
 }
 
 # Password validation

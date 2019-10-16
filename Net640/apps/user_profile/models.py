@@ -11,8 +11,9 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.cache import cache
 
-from Net640.settings import STATIC_URL, EMAIL_HOST_USER, SITE_ADDRESS
+from Net640.settings import STATIC_URL, EMAIL_HOST_USER, SITE_ADDRESS, CACHE_TIMEOUT
 from Net640.apps.images.models import Image, user_avatar_path
 from Net640.apps.user_posts.models import Post
 from Net640.apps.updateflow.mixin import UpdateFlowMixin
@@ -41,6 +42,17 @@ class GetSizeMixin:
     """
     Class helper to calculate size of User data
     """
+
+    def __cache(func):
+        def wrapper(self, *args, **kwargs):
+            var = cache.get(self.id)
+            if var is None:
+                var = func(self, *args, **kwargs)
+                cache.set(self.id, var, CACHE_TIMEOUT)
+            return var
+        return wrapper
+
+    @__cache
     def get_size(self):
         size = 0
         id = self.id

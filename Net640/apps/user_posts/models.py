@@ -1,4 +1,5 @@
 import os
+import logging
 
 from django.db import models
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.utils import timezone
 
 from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
+from Net640.apps.user_posts.exceptions import PostException
 
 
 class Post(LikesMixin, models.Model):
@@ -23,9 +25,11 @@ class Post(LikesMixin, models.Model):
         if self.image:
             return self.image.url
 
-    def delete(self, *args, **kwargs):
-        post_size = 0
+    def get_size(self):
+        """ calculate post size """
+        # TODO Currently, this method calculates the size approximately. Need to calculate likes.
         try:
+            post_size = 0
             post_size += len(str(self.id))
             post_size += len(str(self.user.id))
             post_size += len(self.content)
@@ -33,10 +37,28 @@ class Post(LikesMixin, models.Model):
             post_size += len(str(self.date))
             if self.image:
                 post_size += self.image.size
-            # TODO calculate likes
+        except Exception as error:
+            raise PostException("Got error when calculating post size {}".format(error))
+        return post_size
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        try:
+            post_size = self.get_size()
+            if post_size:
+                # send increment info
+                self.user.msg_upd_page_size(post_size)
+        except PostException as error:
+            logging.error(error)
+
+    def delete(self, *args, **kwargs):
+        try:
+            post_size = self.get_size()
             if post_size:
                 # send decrement info
                 self.user.msg_upd_page_size(-post_size)
+        except PostException as error:
+            logging.error(error)
         finally:
             super().delete(*args, **kwargs)
             if self.image:

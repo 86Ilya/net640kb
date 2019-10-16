@@ -3,6 +3,7 @@
 docker-compose -f docker-compose.yml build
 docker-compose -f docker-compose.yml up -d db
 docker-compose -f docker-compose.yml up -d redis 
+docker-compose -f docker-compose-develop.yml up -d user_cache
 docker-compose -f docker-compose.yml up -d web
 # TODO
 sleep 5
