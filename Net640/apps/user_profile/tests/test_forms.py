@@ -195,7 +195,6 @@ class TestUserRequestPasswordResetForm(TestCase):
     def test_request_password_reset_form_when_email_had_wrong_symbols(self):
         email = "xФxx@m.ru"
         reset_form = UserRequestPasswordResetForm({'email': email})
-        # import pdb; pdb.set_trace()
         self.assertFalse(reset_form.is_valid())
         self.assertIn('Enter a valid email address.', reset_form.errors['email'][0])
 

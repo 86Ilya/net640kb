@@ -18,6 +18,7 @@ from Net640.apps.images.models import Image, user_avatar_path
 from Net640.apps.user_posts.models import Post
 from Net640.apps.updateflow.mixin import UpdateFlowMixin
 from Net640.apps.user_profile.exceptions import UserException
+from Net640.text_templates import TEXT_TEMPLATES
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
@@ -115,11 +116,13 @@ class GetSizeMixin:
 class UserConfirmationCode(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
+    sent = models.BooleanField(default=False, null=False)
 
 
 class UserResetPassword(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
+    sent = models.BooleanField(default=False, null=False)
 
 
 class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
@@ -149,14 +152,8 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.create_thumbnail()
-        self.run_on_create_instance()
-
-    def run_on_create_instance(self):
-        """ Run the methods once when the instance is created"""
-        for name in self.run_once_methods:
-            method = getattr(self, name)
-            method()
-        self.run_once_methods = list()
+        if not self.is_active:
+            self.send_activation_code()
 
     def get_avatar_url(self):
         if self.avatar:
@@ -179,17 +176,27 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         return ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(code_length))
 
     def send_activation_code(self):
-        code = self.generate_random_code()
-        confirmation = UserConfirmationCode(user=self, code=code)
-        confirmation.save()
+        # check if the confirmation exists
         try:
-            send_mail(
-                'Activation code for 640kb social network',
-                '{}confirm_email_id{}/{}'.format(SITE_ADDRESS, self.id, code),
-                EMAIL_HOST_USER,
-                [self.email],
-                fail_silently=False,
-            )
+            confirmation = UserConfirmationCode.objects.get(user=self)
+        except ObjectDoesNotExist:
+            # if a confirmation doesn't exists then create the one
+            code = self.generate_random_code()
+            confirmation = UserConfirmationCode(user=self, code=code)
+            confirmation.save()
+        else:
+            if confirmation.sent:
+                return
+
+        try:
+            send_mail(TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_SUBJECT'],
+                      TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_BODY'].format(SITE_ADDRESS, self.id, confirmation.code),
+                      EMAIL_HOST_USER,
+                      [self.email],
+                      fail_silently=False,
+                      )
+            confirmation.sent = True
+            confirmation.save()
         except Exception:
             raise
 
@@ -204,13 +211,14 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         reset_pass = UserResetPassword(user=self, code=code)
         reset_pass.save()
         try:
-            send_mail(
-                'Reset password link for 640kb social network',
-                '{}password_reset_id{}/{}'.format(SITE_ADDRESS, self.id, code),
-                EMAIL_HOST_USER,
-                [self.email],
-                fail_silently=False,
-            )
+            send_mail(TEXT_TEMPLATES['RESET_PASSWORD_EMAIL_SUBJECT'],
+                      TEXT_TEMPLATES['RESET_PASSWORD_EMAIL_BODY'].format(SITE_ADDRESS, self.id, code),
+                      EMAIL_HOST_USER,
+                      [self.email],
+                      fail_silently=False,
+                      )
+            reset_pass.sent = True
+            reset_pass.save()
         except Exception:
             raise
 

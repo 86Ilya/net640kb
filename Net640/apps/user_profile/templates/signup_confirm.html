@@ -8,16 +8,23 @@
   </head>
   <body class="body">
     <div class="container">
-      <div class="row mt-5">
-        <div class="col-12 col-md-6 mx-auto">
-          {% if confirmed %}
-          Your profile is confirmed!
-          {% else %}
-          There are errors during confirming your profile: {{reason}} 
-          {% endif %}
-
+      {% if confirmed %}
+        <div class="row mt-3">
+          <div class="col-12 col-md-8 text-center mx-auto">
+            <p>Your profile is confirmed!</p>
+          </div>
         </div>
-      </div>
+
+        <div class="row mt-3 no_link_behaviour">
+          <div class="col-12 col-md-8 mx-auto text-center">
+            <a href="{% url 'login' %}" class="btn btn-secondary w-25">Login</a>
+          </div>
+        </div>
+      {% else %}
+        <div class="row mt-5 col-12 col-md-8 mx-auto">
+          <p>There are errors during confirming your profile: {{reason}}</p>
+        </div>
+      {% endif %}
     </div>
 
   </body>
