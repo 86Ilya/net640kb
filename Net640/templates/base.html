@@ -16,7 +16,7 @@
       {% if user %}
       <div class="container" id="vue_base_app">
         <div class="row mt-1 no_link_behaviour">
-            <a href="/friends" class="col-xs-12 col-md-4 p-3 menu__item">Friends</a>
+            <a href="/friends" class="col-xs-12 col-md-4 p-3 menu__item" id="friends_main_menu_button" >Friends</a>
             <a href="/news" class="col-xs-12 col-md-4 p-3 menu__item">News</a>
             <a href="/" class="col-xs-12 col-md-4 p-3 menu__item">My Page(<b>{{user.username}}</b>) [[user_page_size_formatted]]Kb</a>
             <div class="d-none" id="initial_user_page_size">{{user.get_size}}</div>

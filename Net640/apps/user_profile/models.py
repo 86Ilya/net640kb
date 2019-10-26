@@ -292,6 +292,10 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         if not created:
             relationship.save()
         # return relationship
+        if status == RELATIONSHIP_WAITING_FOR_ACCEPT:
+            # send information about new request to frontend
+            self.send_info_about_new_request_to_friends(person)
+
         return self.check_relationship(person)
 
     def remove_relationship(self, person, status, symm=True):

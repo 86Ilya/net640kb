@@ -35,7 +35,6 @@ function friends_func(){
         accept: accept,
       }
     });
-    
     vue_app.doc_path = doc_path;
     vue_app.csrftoken = csrftoken;
 
@@ -57,14 +56,13 @@ function friends_func(){
         action: "cancel",
         user_id: user_id,
         // Server must know the real relationship between users
-        //relationship: relationship
         };
 
       post_request(data, this.$data.doc_path).then((response)=>{
         let json_resp = JSON.parse(response);
         if(json_resp.status && json_resp.status == true) {
           event.target.dataset.relationship = json_resp.relationship_status;
-          // TODO update only one person status 
+          // TODO update only one person status
           update_friends_list();
 
         }
@@ -87,7 +85,7 @@ function friends_func(){
         //console.log(r);
         if(json_resp.status && json_resp.status == true) {
           event.target.dataset.relationship = json_resp.relationship_status;
-          // TODO update only one person status 
+          // TODO update only one person status
           update_friends_list();
         }
       }, alert);
@@ -102,6 +100,5 @@ function get_friends_lists(doc_path, csrftoken){
     csrfmiddlewaretoken: csrftoken,
     action: "get_friends_lists",
     };
-    
   return post_request(data, doc_path);
 }
