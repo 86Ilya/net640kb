@@ -113,3 +113,24 @@ class TestUserProfileViews(TestCase):
         self.assertEqual(response.status_code, HTTP_OK)
         # check after deletion
         self.assertFalse(os.path.exists(user.avatar.path))
+
+    def test_password_reset(self):
+        client = Client()
+        response = client.post(reverse('password_reset_request'), {'email': self.user.email}, follow=True)
+        self.assertEqual(response.status_code, HTTP_OK)
+        self.assertIn(b'Link was sent to your email', response.content)
+        # check email for reset code
+        reset_request_mail = mail.outbox[-1]
+        reset_link = reset_request_mail.body
+        reset_code = reset_link.split('/')[-1]
+        reset_response = client.get(reset_link)
+        # check after resetting password
+        self.assertEqual(reset_response.status_code, HTTP_OK)
+        # type new password
+        response = client.post(reverse('password_reset', kwargs={'user_id': self.user.id,
+                                                                 'confirmation_code': reset_code}),
+                               {'password': 'qwertyuio',
+                                'password_again': 'qwertyuio'})
+        self.assertIn(b'Password successfully changed', response.content)
+        # trying to login with new password
+        self.assertTrue(client.login(username=self.user.username, password='qwertyuio'))
