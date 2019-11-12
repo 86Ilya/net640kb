@@ -4,6 +4,7 @@ import string
 import random
 from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
+from smtplib import SMTPRecipientsRefused
 
 from django.db import models, connection
 from django.contrib.auth.models import PermissionsMixin, UserManager
@@ -153,7 +154,18 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         super().save(*args, **kwargs)
         self.create_thumbnail()
         if not self.is_active:
-            self.send_activation_code()
+            try:
+                self.send_activation_code()
+            except SMTPRecipientsRefused as error:
+                if error.recipients[self.email][1] == b'non-local recipient verification failed':
+                    # If email doesn't exist delete the user
+                    self.delete()
+                    logging.error(f"Email verification failed: {error}")
+                    raise UserException("Email verification failed")
+                # Unhandled email error must be logged
+                error_text = "Unhandled email processing error"
+                logging.exception(f"{error_text}: {error}")
+                raise UserException(error_text)
 
     def get_avatar_url(self):
         if self.avatar:
@@ -188,17 +200,14 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             if confirmation.sent:
                 return
 
-        try:
-            send_mail(TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_SUBJECT'],
-                      TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_BODY'].format(SITE_ADDRESS, self.id, confirmation.code),
-                      EMAIL_HOST_USER,
-                      [self.email],
-                      fail_silently=False,
-                      )
-            confirmation.sent = True
-            confirmation.save()
-        except Exception:
-            raise
+        send_mail(TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_SUBJECT'],
+                  TEXT_TEMPLATES['ACTIVATION_CODE_EMAIL_BODY'].format(SITE_ADDRESS, self.id, confirmation.code),
+                  EMAIL_HOST_USER,
+                  [self.email],
+                  fail_silently=False,
+                  )
+        confirmation.sent = True
+        confirmation.save()
 
     def get_activation_code(self):
         confirmation = UserConfirmationCode.objects.filter(user=self)[0]

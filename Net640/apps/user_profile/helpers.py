@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth import get_user_model
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,7 +17,7 @@ def check_user_auth(user):
 def base(request):
     """
     :param request:
-    :return dict: Возвращает базовый контекст для всех страниц
+    :return dict: return base context
     """
     context = dict()
     if not request.user.is_anonymous:
@@ -33,7 +35,15 @@ def save_user_by_form(request, context):
 
     if user_form.is_valid():
         valid = True
-        user = user_form.save()
+        try:
+            user = user_form.save()
+        except UserException as error:
+            logging.error(f"Error occured while saving user from form: {error}")
+            user_form.valid = False
+            # add error to user form
+            user_form.errors.update({"__all__": str(error)})
+            return user_form, False
+
         context['user'] = user
     return user_form, valid
 

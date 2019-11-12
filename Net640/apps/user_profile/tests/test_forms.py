@@ -28,7 +28,7 @@ class TestUserForm(TestCase):
         user_form = UserForm(user_form_data, {'avatar': avatar})
         self.assertTrue(user_form.is_valid())
 
-    def test_user_from_when_username_is_too_long(self):
+    def test_user_form_when_username_is_too_long(self):
         name = 'X' * 121
         user_form_data = {'username': name,
                           'email': self.email,
@@ -39,7 +39,7 @@ class TestUserForm(TestCase):
         self.assertFalse(user_form.is_valid())
         self.assertIn('Ensure this value has at most 120 characters', user_form.errors['username'][0])
 
-    def test_user_from_when_username_is_too_short(self):
+    def test_user_form_when_username_is_too_short(self):
         name = 'XX'
         user_form_data = {'username': name,
                           'email': self.email,
@@ -50,7 +50,7 @@ class TestUserForm(TestCase):
         self.assertFalse(user_form.is_valid())
         self.assertIn('Ensure this value has at least 3 characters', user_form.errors['username'][0])
 
-    def test_user_from_when_username_had_wrong_symbols(self):
+    def test_user_form_when_username_had_wrong_symbols(self):
         name = 'X.X'
         user_form_data = {'username': name,
                           'email': self.email,
@@ -62,7 +62,7 @@ class TestUserForm(TestCase):
         self.assertIn('Username should contain only letters, digits, underscores, and dashes',
                       user_form.errors['username'][0])
 
-    def test_user_from_when_email_is_incorrect(self):
+    def test_user_form_when_email_is_incorrect(self):
         user_form_data = {'username': self.random_name,
                           'email': self.random_name + 'm.ru',
                           'password': self.password,
@@ -82,7 +82,7 @@ class TestUserForm(TestCase):
         self.assertFalse(user_form.is_valid())
         self.assertEqual(user_form.errors['__all__'][0], 'Passwords mismatch')
 
-    def test_user_from_when_avatar_is_too_large(self):
+    def test_user_form_when_avatar_is_too_large(self):
         img_file, content_type = create_test_image(3000)
         avatar = SimpleUploadedFile('myavatar.bmp', img_file.read(), content_type)
         user_form_data = {'username': self.random_name,
