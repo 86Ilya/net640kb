@@ -17,7 +17,7 @@ Other functions are similiar to most popular social networks:
 ## Getting Started
 
 This project developed for running in the docker container.
-So if you have docker installed on your local machine - that will be enough to run this project.
+So if you have `docker` and `docker-compose` installed on your local machine - that will be enough to run this project.
 Steps to run project:
 ```bash
 git clone https://github.com/86Ilya/net640kb
@@ -32,8 +32,11 @@ To install docker follow instructions on page
 https://docs.docker.com/install/
 
 ## Running the tests
-
-To run the tests you need to deploy the app and exec in running web container the next command:
+To run the tests you need to deploy the app in develop mode
+```bash
+./deploy-develop.sh
+```
+and exec in running web container the next command:
 ```bash
 docker exec -it net640kb_web_1 python manage.py test
 ```

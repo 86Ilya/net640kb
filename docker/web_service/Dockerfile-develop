@@ -1,0 +1,14 @@
+from python:3.7
+
+WORKDIR /app
+COPY . /app
+
+RUN apt-get update
+RUN apt-get install -y python3-dev git vim mc wget
+
+RUN pip install -r requirements-develop.txt
+RUN pip install channels==2.2.0
+RUN pip install channels-redis==2.4.0
+RUN cd /usr/local/bin && wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz && tar xvf geckodriver-v0.26.0-linux64.tar.gz
+
+EXPOSE 8000
