@@ -4,7 +4,7 @@ import string
 import random
 from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
-from smtplib import SMTPRecipientsRefused
+from smtplib import SMTPException
 
 from django.db import models, connection
 from django.contrib.auth.models import PermissionsMixin, UserManager
@@ -156,16 +156,11 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         if not self.is_active:
             try:
                 self.send_activation_code()
-            except SMTPRecipientsRefused as error:
-                if error.recipients[self.email][1] == b'non-local recipient verification failed':
-                    # If email doesn't exist delete the user
-                    self.delete()
-                    logging.error(f"Email verification failed: {error}")
-                    raise UserException("Email verification failed")
-                # Unhandled email error must be logged
-                error_text = "Unhandled email processing error"
-                logging.exception(f"{error_text}: {error}")
-                raise UserException(error_text)
+            except SMTPException as error:
+                # Any SMPTExcetion is a good reason not to save the user profile
+                self.delete()
+                logging.error(f"Got SMPT exception: {error}")
+                raise UserException("Some problems with processing your email account")
 
     def get_avatar_url(self):
         if self.avatar:
