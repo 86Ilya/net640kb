@@ -1,23 +1,17 @@
 import os
+try:
+    from Net640.settings_develop import *  # noqa: F403, F401
+except ImportError:
+    from Net640.settings_production import *  # noqa: F403, F401
 
 MAX_PAGE_SIZE = 640 * 1024  # max user page size in bytes
 BYTES_IN_SYMB = 1
-SITE_ADDRESS = 'http://0.0.0.0:8080/'
 CACHE_TIMEOUT = 60 * 60
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-if os.environ.get('DEBUG') == 'True':
-    DEBUG = True
-else:
-    DEBUG = False
-
-
-ALLOWED_HOSTS = ['*']
+DEBUG = False
 
 # Application definition
 
@@ -118,18 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'ilya_aurov@mail.ru'
-# TODO This account is only for testing
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = 'ilya_aurov@mail.ru'
-
 # Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -142,8 +125,8 @@ USE_L10N = False
 USE_TZ = True
 
 DATE_FORMAT = '%d.%m.%Y'
+
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "Net640", "static"),
 ]
