@@ -18,13 +18,13 @@ Other functions are similiar to most popular social networks:
 
 This project developed for running in the docker container.
 So if you have `docker` and `docker-compose` installed on your local machine - that will be enough to run this project.
-Steps to run project:
+Steps to run project for test purpose:
 ```bash
 git clone https://github.com/86Ilya/net640kb
 cd net640kb
-sh deploy.sh
+bash deploy-develop.sh
 ```
-After that web server will starts on localhost on 80 port, so ensure that you don't have running anything on this port.
+After that web server will starts on localhost on 8080 port, so ensure that you don't have running anything on this port.
 
 ### Prerequisites
 
@@ -34,7 +34,7 @@ https://docs.docker.com/install/
 ## Running the tests
 To run the tests you need to deploy the app in develop mode
 ```bash
-./deploy-develop.sh
+bash deploy-develop.sh
 ```
 and exec in running web container the next command:
 ```bash
