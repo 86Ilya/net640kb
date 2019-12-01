@@ -7,6 +7,7 @@ except ImportError:
 MAX_PAGE_SIZE = 640 * 1024  # max user page size in bytes
 BYTES_IN_SYMB = 1
 CACHE_TIMEOUT = 60 * 60
+FRONTEND_DATE_FORMAT = '%b %d, %Y'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')

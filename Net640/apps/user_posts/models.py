@@ -3,15 +3,15 @@ import logging
 
 from django.db import models
 from django.conf import settings
-from django.urls import reverse
 from django.utils import timezone
 
 from Net640.apps.images.models import user_directory_path
 from Net640.mixin import LikesMixin
+from Net640.apps.user_posts.mixin import AsDictMessageMixin
 from Net640.apps.user_posts.exceptions import PostException
 
 
-class Post(LikesMixin, models.Model):
+class Post(LikesMixin, AsDictMessageMixin, models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
     date = models.DateTimeField(default=timezone.now, blank=True)
@@ -65,13 +65,21 @@ class Post(LikesMixin, models.Model):
                 os.remove(self.image.path)
 
     def as_dict(self, executor):
-        return {'content': self.content,
-                'user_has_like': self.has_like(executor),
-                'is_owner': self.user == executor,
-                'rating': round(self.get_rating(), 1),
-                'author': self.user.username,
-                'author_page': reverse('user_view', kwargs={'user_id': self.user.id}),
-                'date': self.date.strftime('%b %d, %Y'),
-                'image_url': self.get_image_url(),
-                'id': self.id,
-                'author_thumbnail_url': self.user.get_thumbnail_url(), }
+        result = super().as_dict(executor)
+        result.update({'comments': [comment.as_dict(executor) for comment in Comment.objects.filter(post=self)],
+                       'image_url': self.get_image_url()})
+        return result
+
+
+class Comment(LikesMixin, AsDictMessageMixin, models.Model):
+    """
+    Comment model for user post
+    """
+    content = models.TextField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="comment_likes")
+
+    class Meta:
+        ordering = ['-date']

@@ -9,3 +9,4 @@ clean.sh
 migrations/
 commit_message
 env
+node_modules

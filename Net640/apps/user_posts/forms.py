@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
-from Net640.apps.user_posts.models import Post
+from Net640.apps.user_posts.models import Post, Comment
 from Net640.settings import MAX_PAGE_SIZE
 
 
@@ -56,3 +56,22 @@ class PostForm(forms.ModelForm):
             raise forms.ValidationError(validation_errors)
 
         return cleaned_data
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('content',)
+
+    content = forms.CharField(widget=forms.Textarea)
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        self.fields['content'].widget.attrs.update({
+            'placeholder': 'Your comment', 'class': 'form-control w-100 mb-3', 'rows': 1,
+        })
+        self.fields['content'].help_text = ''
+        self.fields['content'].label = ''
+        self.fields['content'].required = True

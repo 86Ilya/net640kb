@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_http_methods, require_POST
 
-from Net640.apps.user_posts.models import Post
-from Net640.apps.user_posts.forms import PostForm
+from Net640.apps.user_posts.models import Post, Comment
+from Net640.apps.user_posts.forms import PostForm, CommentForm
+from Net640.apps.user_posts.helpers import user_comment_process_action_post
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 from Net640.apps.user_profile.helpers import base
 
@@ -39,6 +40,7 @@ def mainpage_view(request):
             else:
                 # show form errors to user
                 post_form = new_post_form
+        context.update({'comment_form': CommentForm()})
         context.update({'posts': [], 'post_form': post_form})
         return render(request, 'main_page.html', context)
     else:
@@ -60,7 +62,7 @@ def user_post_action(request):
     context = {}
     user = request.user
     context.update({"result": False})
-    post_id = request.POST.get('post_id', None)
+    post_id = request.POST.get('id', None)
     post = get_object_or_404(Post, id=post_id)
     action = request.POST.get('action', None)
 
@@ -104,3 +106,16 @@ def user_news_post_action(master, post_request):
         # incorrect operation
         pass
     return result
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def user_comment_processing(request, post_id=None):
+    if request.method == "POST":
+        # possible actions are: like, dislike, remove the comment, add a new comment
+        result = user_comment_process_action_post(request)
+    else:
+        # get request returns the list of comments
+        result = {'comments': [obj.as_dict(request.user) for obj in Comment.objects.filter(post_id=post_id)]}
+
+    return JsonResponse(result)
