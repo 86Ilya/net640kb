@@ -54,7 +54,6 @@ class TestTestchat(ChannelsLiveServerTestCase):
         element = browser.find_element(By.LINK_TEXT, "Log in")
         actions = ActionChains(browser)
         actions.move_to_element(element).perform()
-        # pdb.set_trace()
         browser.find_element(By.LINK_TEXT, "Log in").click()
         browser.find_element(By.NAME, "username").click()
         browser.find_element(By.NAME, "username").send_keys(self.user1.username)

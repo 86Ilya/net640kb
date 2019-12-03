@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from Net640.apps.user_posts.models import Post
+from Net640.apps.user_posts.forms import CommentForm
 from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 
 User = get_user_model()
@@ -78,7 +79,6 @@ def user_view(request, user_id):
     master = User.objects.get(pk=request.user.id)
     if int(user_id) == master.id:
         return redirect('mainpage')
-
     page_owner = User.objects.get(pk=user_id)
     relationship_status = master.check_relationship(page_owner)
     if request.method == "POST" and request.POST.get("action", False):
@@ -91,6 +91,7 @@ def user_view(request, user_id):
         'page_owner_id': page_owner.id,
         'page_owner_size': page_owner.get_size(),
         'user': master,
+        'comment_form': CommentForm(),
     }
     return render(request, 'user_view.html', context)
 

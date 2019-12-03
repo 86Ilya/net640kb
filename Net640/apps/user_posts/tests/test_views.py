@@ -30,51 +30,52 @@ class TestUserPostViews(TestCase):
         post_from_db = Post.objects.get(user=self.user)
         self.assertEqual(post_from_db.content, post_content)
 
-    def test_mainpage_action_get_own_posts(self):
-        post_content = "test_mainpage_action_get_own_posts"
+    def test_user_post_processing_action_get_posts(self):
+        post_content = "test_user_post_processing_action_get_posts"
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
         self.assertEqual(response.status_code, 200)
         post_from_db = Post.objects.get(user=self.user)
-        post_from_action = client.post(reverse('mainpage'), {'action': 'get_own_posts'}).json()['posts'][0]
+        # get own posts from server
+        post_from_action = client.post(reverse('user_post_processing'), {'action': 'get_posts'}).json()['posts'][0]
         self.assertEqual(post_from_db.content, post_from_action['content'])
 
-    def test_user_post_action_like(self):
-        post_content = "test_user_post_action_like"
+    def test_user_post_processing_like(self):
+        post_content = "test_user_post_processing_like"
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
         self.assertEqual(response.status_code, 200)
         post_from_db = Post.objects.get(user=self.user)
-        response = client.post(reverse('user_post_action'), {'action': 'like', 'post_id': post_from_db.id}).json()
+        response = client.post(reverse('user_post_processing'), {'action': 'like', 'id': post_from_db.id}).json()
         self.assertTrue(response['result'])
         self.assertEqual(post_from_db.get_rating(), response['likes'])
 
-    def test_user_post_action_dislike(self):
-        post_content = "test_user_post_action_dislike"
+    def test_user_post_processing_dislike(self):
+        post_content = "test_user_post_processing_dislike"
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
         self.assertEqual(response.status_code, 200)
         post_from_db = Post.objects.get(user=self.user)
         # set like
-        response = client.post(reverse('user_post_action'), {'action': 'like', 'post_id': post_from_db.id}).json()
+        response = client.post(reverse('user_post_processing'), {'action': 'like', 'id': post_from_db.id}).json()
         self.assertTrue(response['result'])
         self.assertEqual(post_from_db.get_rating(), response['likes'])
         # remove like
-        response = client.post(reverse('user_post_action'), {'action': 'dislike', 'post_id': post_from_db.id}).json()
+        response = client.post(reverse('user_post_processing'), {'action': 'dislike', 'id': post_from_db.id}).json()
         self.assertTrue(response['result'])
         self.assertEqual(post_from_db.get_rating(), response['likes'])
 
-    def test_user_post_action_remove(self):
-        post_content = "test_user_post_action_remove"
+    def test_user_post_processing_remove(self):
+        post_content = "test_user_post_processing_remove"
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
         self.assertEqual(response.status_code, 200)
         post_from_db = Post.objects.get(user=self.user)
-        response = client.post(reverse('user_post_action'), {'action': 'remove', 'post_id': post_from_db.id}).json()
+        response = client.post(reverse('user_post_processing'), {'action': 'remove', 'id': post_from_db.id}).json()
         self.assertTrue(response['result'])
         with self.assertRaises(ObjectDoesNotExist):
             Post.objects.get(user=self.user)
@@ -93,7 +94,7 @@ class TestUserPostViews(TestCase):
         # login as another user
         client.login(username=self.friend.username, password='12345678')
         # get news
-        post_from_view = client.post(reverse('user_news'), {'action': 'get_news'}).json()['posts'][0]
+        post_from_view = client.post(reverse('user_news'), {'action': 'get_posts'}).json()['posts'][0]
         self.assertEqual(post_from_db.content, post_from_view['content'])
         self.assertEqual(post_from_db.id, post_from_view['id'])
 
@@ -107,8 +108,8 @@ class TestUserPostViews(TestCase):
         with self.assertRaises(ObjectDoesNotExist):
             Post.objects.get(user=self.user)
 
-    def test_user_post_action_remove_on_foreign_post(self):
-        post_content = "test_user_post_action_remove_on_foreign_post"
+    def test_user_post_processing_remove_on_foreign_post(self):
+        post_content = "test_user_post_processing_remove_on_foreign_post"
         client = Client()
         client.login(username=self.user.username, password='12345678')
         response = client.post(reverse('mainpage'), {'content': post_content})
@@ -116,7 +117,7 @@ class TestUserPostViews(TestCase):
         post_from_db = Post.objects.get(user=self.user)
 
         client.login(username=self.friend.username, password='12345678')
-        response = client.post(reverse('user_post_action'), {'action': 'remove', 'post_id': post_from_db.id}).json()
+        response = client.post(reverse('user_post_processing'), {'action': 'remove', 'id': post_from_db.id}).json()
         self.assertFalse(response['result'])
         self.assertEqual(Post.objects.get(user=self.user).content, post_from_db.content)
 
@@ -131,7 +132,7 @@ class TestUserPostViews(TestCase):
         # login as another user
         client.login(username=self.friend.username, password='12345678')
         # get news
-        post_from_view = client.post(reverse('user_news'), {'action': 'get_news'}).json()['posts']
+        post_from_view = client.post(reverse('user_news'), {'action': 'get_posts'}).json()['posts']
         self.assertEqual(len(post_from_view), 0)
         # check that post exists
         post_from_db = Post.objects.get(user=self.user)
