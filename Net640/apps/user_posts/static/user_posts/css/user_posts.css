@@ -15,3 +15,13 @@ label[for="id_image"]::before {
     vertical-align: middle;
     font-weight:900;
 }
+
+/* modify a modal classes*/
+.modal {
+  border-radius: 0 !important;
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal_content {
+  border-radius: 0 !important;
+}

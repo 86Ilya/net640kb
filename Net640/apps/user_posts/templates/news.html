@@ -14,17 +14,7 @@
   </div>
 </div>
 
-<div id="vue_user_news_app" class="">
-
-  <!-- default values -->
-  <div id="default_values" class="d-none"
-       data-action-url="{% url 'user_post_action' %}"
-       >
-  </div>
-  <!-- end of default values -->
-  {% include 'user_posts.html' %}
-
-</div>
+{% include 'user_posts.html' %}
 
 <form method="post" class="d-none">
     {% csrf_token %}
@@ -35,7 +25,6 @@
 {% block scripts %}
 <script type="text/javascript" src='{% static "vendor/js/vue.js" %}'></script>
 <script type="text/javascript" src='{% static "js/basic_func.js" %}'></script>
-<script type="text/javascript" src='{% static 'user_posts/js/news.js' %}'></script>
 
 
 {% endblock %}

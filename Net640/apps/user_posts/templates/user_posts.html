@@ -1,36 +1,102 @@
-<div v-if="posts" class="container mt-5">
-      <div v-for="post in posts" class="row posts_list__item w-90 mx-auto">
-        <div class="col-12 col-md-9 mx-auto">
-          <div v-if="post.image_url" class="row mt-1">
-              <img v-bind:src="post.image_url" class="col-12 mx-auto"/>
-          </div>
-          <div class="row">
-            <div class="col-10">
-              <div class="wordwrap">
-                [[post.content]]
+<div id="vue_postscomments_app" class="">
+  <!-- default values -->
+  <div data-application-variables="default_values" class="d-none"
+      {#In some cases, for example, a user visits a news page, we want to change the post processing url.#}
+      {#It's easier than creating a new js module to process the same data.#}
+      {% if explicit_processing_url %}
+       data-userpost-processing-url={{explicit_processing_url}}
+      {% else %}
+       data-userpost-processing-url="{% url 'user_post_processing' %}"
+      {% endif %}
+       data-usercomment-processing-url="{% url 'user_comment_processing' %}"
+       >
+  </div>
+  <!-- end of default values -->
+
+  <div v-if="posts" class="container mt-5">
+        <div v-for="post in posts" class="row posts_list__item w-90 mx-auto" data-message-type='post'>
+          <div class="col-12 col-md-9 mx-auto">
+            <div v-if="post.image_url" class="row mt-1">
+                <img v-bind:src="post.image_url" class="col-12 mx-auto"/>
+            </div>
+            <div class="row">
+              <div class="col-10">
+                <div class="wordwrap">
+                  [[post.content]]
+                </div>
+              </div>
+              <div class="col-2 text-right">
+                <a v-bind:href=post.author_page>
+                  <img v-bind:src="post.author_thumbnail_url"/>
+                </a>
+                <div class="posts_list__item_author_and_date">
+                  [[post.author]] [[post.date]]
+                </div>
               </div>
             </div>
-            <div class="col-2 text-right">
-              <a v-bind:href=post.author_page>
-                <img v-bind:src="post.author_thumbnail_url"/>
-              </a>
-              <div class="posts_list__item_author_and_date">
-                [[post.author]] [[post.date]]
+            <div class="row">
+              <div class="col-1 text-center align-self-right">
+                <div class="badge badge-dark">[[post.rating.toFixed(1)]]</div>
+              </div>
+              <div class="col-1">
+                <i v-if="post.user_has_like" class="fas fa-heart" v-on:click="action_on_user_message" data-action='dislike' v-bind:data-action-url=post_processing_url v-bind:data-message-id=post.id></i>
+                <i v-else class="far fa-heart" v-on:click="action_on_user_message" data-action='like' v-bind:data-action-url="post_processing_url" v-bind:data-message-id="post.id"></i>
+              </div>
+              <div v-if="post.is_owner" class="col-1 offset-9 text-right align-self-right">
+                <i class="far fa-trash-alt" v-on:click="action_on_user_message" data-action='remove' v-bind:data-action-url=post_processing_url v-bind:data-message-id=post.id></i>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-1 text-center align-self-right">
-              <div class="badge badge-dark">[[post.rating.toFixed(1)]]</div>
+            
+            <div class="row mt-4">
+              <div class="col-12 col-md-12 mx-auto">
+                <div class="btn btn-secondary p-1" v-bind:data-message-id=post.id v-on:click="show_modal_add_comment"><div class="small">add comment</div></div>
+              </div>
             </div>
-            <div class="col-1">
-              <i v-if="post.user_has_like" class="fas fa-heart" v-on:click="action_on_user_post" data-action='dislike' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
-              <i v-else class="far fa-heart" v-on:click="action_on_user_post" data-action='like' v-bind:data-action-url="post_action_url" v-bind:data-post-id="post.id"></i>
+
+            <div v-if="post.comments" class="container mt-5">
+            <!--<div v-for="comment in post.comments" v-bind:key="comment.id" data-message-type='comment' class="row posts_list__item w-90 mx-auto">-->
+            <div v-for="comment in post.comments" v-bind:key="comment.id" data-message-type='comment' class="row w-90 mx-auto">
+            <div class="col-12 col-md-9 mx-auto">
+            <hr/>
+              <div class="row">
+                <div class="col-10">
+                  <div class="wordwrap">
+                    [[comment.content]]
+                  </div>
+                </div>
+                <div class="col-2 text-right">
+                  <a v-bind:href=comment.author_page>
+                    <img v-bind:src="comment.author_thumbnail_url"/>
+                  </a>
+                  <div class="posts_list__item_author_and_date">
+                    [[comment.author]] [[comment.date]]
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-1 text-center align-self-right">
+                  <div class="badge badge-dark">[[comment.rating.toFixed(1)]]</div>
+                </div>
+                <div class="col-1">
+                  <i v-if="comment.user_has_like" class="fas fa-heart" v-on:click="action_on_user_message" data-action='dislike' v-bind:data-action-url=comment_processing_url v-bind:data-message-id=comment.id></i>
+                  <i v-else class="far fa-heart" v-on:click="action_on_user_message" data-action='like' v-bind:data-action-url="comment_processing_url" v-bind:data-message-id="comment.id"></i>
+                </div>
+                <div v-if="comment.is_owner" class="col-1 offset-9 text-right align-self-right">
+                  <i class="far fa-trash-alt" v-on:click="action_on_user_message" data-action='remove' v-bind:data-action-url=comment_processing_url v-bind:data-message-id=comment.id></i>
+                </div>
+              </div>
             </div>
-            <div v-if="post.is_owner" class="col-1 offset-9 text-right align-self-right">
-              <i class="far fa-trash-alt" v-on:click="action_on_user_post" data-action='remove' v-bind:data-action-url=post_action_url v-bind:data-post-id=post.id></i>
             </div>
+            </div>
+
           </div>
         </div>
-      </div>
+  </div>
+
+
+{% include 'add_comment_modal.html' %}
 </div>
+
+{% load static %}
+<script type="text/javascript" src='{% static 'user_posts/js/user_posts_and_comments.js' %}'></script>

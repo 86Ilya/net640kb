@@ -13,12 +13,11 @@
 <div id="vue_user_view_app" class="">
 
   <!-- default values -->
-  <div id="default_values" class="d-none"
+  <div data-application-variables="default_values" class="d-none"
        data-relationship_status="{{relationship_status}}"
        data-page_owner_username="{{page_owner_username}}"
        data-page_owner_id="{{page_owner_id}}"
        data-page_owner_size="{{page_owner_size}}"
-       data-action-url="{% url 'user_post_action' %}"
        >
 
 
@@ -46,9 +45,8 @@
 
   </div>
 
-  {% include 'user_posts.html' %}
-
 </div>
+{% include 'user_posts.html' %}
 {% endblock %}
 
 {% block scripts %}

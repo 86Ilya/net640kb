@@ -13,13 +13,13 @@ function user_view_func(){
     RELATIONSHIP_STATUSES[RELATIONSHIP_WAITING_FOR_ACCEPT] = 'Waiting for accept'
     RELATIONSHIP_STATUSES[RELATIONSHIP_FRIENDS] = 'Friends'
     RELATIONSHIP_STATUSES[RELATIONSHIP_BLOCKED] = 'Blocked'
-        
-    let default_values = document.getElementById("default_values")
+
+    let app_el = document.querySelector('#vue_user_view_app');
+    let default_values = app_el.querySelector('[data-application-variables]');
     let relationship_status = default_values.getAttribute("data-relationship_status");
     let page_owner_username = default_values.getAttribute("data-page_owner_username");
     let page_owner_id = default_values.getAttribute("data-page_owner_id");
     let page_owner_size = default_values.getAttribute("data-page_owner_size");
-    let post_action_url = default_values.getAttribute('data-action-url');
 
     // TODO -> to function
     page_owner_size = (parseInt(page_owner_size) / 1024).toFixed(1) + "Kb";
@@ -27,7 +27,7 @@ function user_view_func(){
     let friend = false;
     if(parseInt(relationship_status) ===  RELATIONSHIP_FRIENDS){
       friend = true;
-    } 
+    }
 
     let doc_path = window.location.pathname;
     let csrftoken = document.querySelectorAll('input[name=csrfmiddlewaretoken]')[0].value;
@@ -42,22 +42,19 @@ function user_view_func(){
         relationship_descr: relationship_descr,
         doc_path: doc_path,
         csrftoken: csrftoken,
-        posts: '',
         page_owner_username: page_owner_username,
         page_owner_id: page_owner_id,
         page_owner_size: page_owner_size,
         RELATIONSHIP_STATUSES: RELATIONSHIP_STATUSES,
         RELATIONSHIP_FRIENDS: RELATIONSHIP_FRIENDS,
-        post_action_url: post_action_url,
       },
       methods: {
         get_user_info: get_user_info,
         update_relationship_descr: update_relationship_descr,
-        action_on_user_post: action_on_user_post,
         send_request_for_friends: send_request_for_friends,
       }
     });
-    
+
     vue_app.get_user_info();
 
     var interval_id;
@@ -83,16 +80,16 @@ function update_relationship_descr(){
   }
   else{
     this.friend = false;
-  } 
+  }
 }
 
 function get_user_info(){
-  
+
   let data = {
     csrfmiddlewaretoken: this.csrftoken,
     action: "get_user_info",
     };
-  
+
     post_request(data, this.doc_path).then((response)=>{
       let json_resp = JSON.parse(response);
       this.posts = json_resp.posts;
@@ -103,43 +100,6 @@ function get_user_info(){
     }, alert);
 }
 
-function action_on_user_post(event){
-      let cur = event.currentTarget;
-      let action = cur.getAttribute('data-action');
-      let path = cur.getAttribute('data-action-url');
-      let post_id = cur.getAttribute('data-post-id');
-      let data = {
-        csrfmiddlewaretoken: this.csrftoken,
-        action: action,
-        post_id: post_id
-        };
-      post_request(data, path).then(function(response){
-        response = JSON.parse(response);
-
-        if(response['result'] == true){
-
-          if(action == 'remove'){
-            // TODO looks bad
-            cur.parentNode.parentNode.parentNode.parentNode.remove();
-          } 
-          else if(action == 'like'){
-            cur.setAttribute('class', 'fas fa-heart');
-            cur.setAttribute('data-action', 'dislike');
-            cur.parentNode.parentNode.getElementsByClassName("badge")[0].innerText = response["likes"].toFixed(1);
-            
-          }
-          else if(action == 'dislike'){
-            cur.setAttribute('class', 'far fa-heart');
-            cur.setAttribute('data-action', 'like');
-            cur.parentNode.parentNode.getElementsByClassName("badge")[0].innerText = response["likes"].toFixed(1);
-            
-          }
- 
-              
-        }
-
-      });
-    }
 
 function send_request_for_friends(){
   let data = {
