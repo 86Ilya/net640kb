@@ -1,51 +1,30 @@
-import socket
-
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from django.test import override_settings
-from channels.testing import ChannelsLiveServerTestCase
 
+from Net640.testing.helpers import ChannelsBaseTestCase
 from Net640.apps.user_profile.models import User
 
 
 @override_settings(ALLOWED_HOSTS=['*'])  # Disable ALLOW_HOSTS
-class TestTestchat(ChannelsLiveServerTestCase):
-    # Bind to 0.0.0.0 to allow external access
-    host = '0.0.0.0'
-    server_static = True
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        # Set host to externally accessible web server address
-        cls.host = socket.gethostbyname(socket.gethostname())
+class TestChat(ChannelsBaseTestCase):
+    password = '12345678'
 
-        # Instantiate the remote WebDriver
-        # 'selenium' is docker container configured in docker-compose-develop.yml
-        cls.selenium = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
-                                        desired_capabilities=DesiredCapabilities.FIREFOX)
-        cls.selenium.implicitly_wait(7)
+    def setUp(self):
 
         # create two users
-        cls.password = '12345678'
 
-        cls.user1 = User(username='test_ui_1', email='user1@m.ru', is_active=True)
-        cls.user1.set_password(cls.password)
-        cls.user1.save()
+        self.user1 = User(username='test_ui_1', email='user1@m.ru', is_active=True)
+        self.user1.set_password(self.password)
+        self.user1.save()
 
-        cls.user2 = User(username='test_ui_2', email='user2@m.ru', is_active=True)
-        cls.user2.set_password(cls.password)
-        cls.user2.save()
+        self.user2 = User(username='test_ui_2', email='user2@m.ru', is_active=True)
+        self.user2.set_password(self.password)
+        self.user2.save()
 
         # create relationships between them
-        cls.user1.accept(cls.user2)
-        cls.user2.accept(cls.user1)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
+        self.user1.accept(self.user2)
+        self.user2.accept(self.user1)
 
     def user1_send_chatmessage_to_user2(self):
         browser = self.selenium
