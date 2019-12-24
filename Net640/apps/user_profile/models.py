@@ -119,11 +119,17 @@ class UserConfirmationCode(models.Model):
     code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
     sent = models.BooleanField(default=False, null=False)
 
+    class Meta:
+        app_label = 'user_profile'
+
 
 class UserResetPassword(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     code = models.CharField(_('confirmation code'), max_length=120, null=False, blank=False)
     sent = models.BooleanField(default=False, null=False)
+
+    class Meta:
+        app_label = 'user_profile'
 
 
 class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
@@ -149,6 +155,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     class Meta:
         verbose_name = _('user')
         verbose_name_plural = _('users')
+        app_label = 'user_profile'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -442,3 +449,6 @@ class Relationship(models.Model):
     from_person = models.ForeignKey(User, related_name='from_people', on_delete=models.CASCADE)
     to_person = models.ForeignKey(User, related_name='to_people', on_delete=models.CASCADE)
     status = models.IntegerField(choices=RELATIONSHIP_STATUSES)
+
+    class Meta:
+        app_label = 'user_profile'

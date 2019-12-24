@@ -20,6 +20,7 @@ class Post(LikesMixin, AsDictMessageMixin, models.Model):
 
     class Meta:
         ordering = ["-date"]
+        app_label = 'user_posts'
 
     def get_image_url(self):
         if self.image:
@@ -83,3 +84,4 @@ class Comment(LikesMixin, AsDictMessageMixin, models.Model):
 
     class Meta:
         ordering = ['-date']
+        app_label = 'user_posts'

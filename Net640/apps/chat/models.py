@@ -22,6 +22,9 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
 
+    class Meta:
+        app_label = 'chat'
+
     def save(self, *args, **kwargs):
         # Calculate message size
         # use latest id as reference

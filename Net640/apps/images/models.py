@@ -24,6 +24,9 @@ class Image(LikesMixin, models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="message_likes")
 
+    class Meta:
+        app_label = 'images'
+
     def delete(self, *args, **kwargs):
         author_id = str(self.user.id)
         image_size = len(str(self.id))
