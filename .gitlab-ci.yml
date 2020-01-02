@@ -1,0 +1,39 @@
+stages:
+  - build
+  - deploy
+  - test
+  - stop
+
+build:
+  stage: build
+  tags:
+    - net640
+  script:
+    - cd /home/gitlab-runner/net640kb && git pull
+    - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose-testing.yml build
+  when: always
+
+deploy:
+  stage: deploy
+  tags:
+    - net640
+  script:
+    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose-testing.yml down
+    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose-testing.yml up -d
+  when: on_success
+
+testing:
+  stage: test
+  tags:
+    - net640
+  script:
+    - docker exec net640kb_web_1 python manage.py test -v 2
+  when: on_success
+
+stop_server:
+  stage: stop
+  tags:
+    - net640
+  script:
+    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose-testing.yml down
+  when: on_failure

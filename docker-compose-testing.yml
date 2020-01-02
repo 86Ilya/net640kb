@@ -1,0 +1,70 @@
+version: '2.0'
+
+volumes:
+  postgres_data:
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - /opt/testdb/:/var/lib/postgresql/data
+  redis:
+    restart: always
+    image: redis
+    expose:
+      - "6379"
+  user_cache:
+    restart: always
+    image: redis
+    expose:
+      - "6379"
+  web:
+    build:
+         context: .
+         dockerfile: ./docker/web_service/Dockerfile-develop
+    command: /app/docker/web_service/fire.sh
+    environment:
+       - SECRET_KEY=${SECRET_KEY}
+       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+       - DATABASE_USER=${DATABASE_USER}
+       - DATABASE_NAME=${DATABASE_NAME}
+       - DATABASE_HOST=${DATABASE_HOST}
+       - REDIS_HOST=${REDIS_HOST}
+       - REDIS_PORT=${REDIS_PORT}
+       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+    volumes:
+    - static-content:/app/static/
+    - media-content:/app/media/
+    - logs-app:/app/logs
+    depends_on:
+      - db
+      - redis
+  nginx:
+    restart: always
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+          - web
+    volumes:
+      - static-content:/app/static
+      - media-content:/app/media
+      - logs-app:/srv/www/net640/logs
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/uwsgi_config/:/srv/config
+
+  selenium:
+    image: selenium/standalone-firefox-debug
+    ports:
+      - 4444:4444   # Selenium
+      - 5900:5900   # VNC server, password is secret
+
+volumes:
+    static-content:
+    media-content:
+    logs-app:
