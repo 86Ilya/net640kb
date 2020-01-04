@@ -1,8 +1,8 @@
 stages:
   - build
   - test
+  - clean
   - deploy
-  - stop
 
 build:
   stage: build
@@ -26,11 +26,18 @@ testing:
     - docker run --rm --name user_cache --network=testing -d redis
     - docker run --rm --name=selenium --network=testing -d selenium/standalone-firefox-debug
     - docker run --rm --name=net640kb_web_testing --network=testing -e SECRET_KEY=TESTING -e DATABASE_NAME=postgres -e DATABASE_HOST=db_testing -e DATABASE_USER=postgres -e DATABASE_PASSWORD=postgres -e REDIS_HOST=redis_testing -e REDIS_PORT=6379 net640kb_web /bin/sh -c "cd /app && python manage.py makemigrations && python manage.py migrate && python manage.py test -v 2"
-    # delete the test containers
-    - docker container stop db_testing redis_testing user_cache selenium
-    # delete the test network
-    - docker network rm testing
   when: on_success
+
+clean:
+  stage: clean 
+   tags:
+     - net640
+   script:
+     # delete the test containers
+     - docker container stop db_testing redis_testing user_cache selenium
+     # delete the test network
+     - docker network rm testing
+  when: always
 
 deploy:
   stage: deploy
