@@ -39,7 +39,6 @@ services:
     - static-content:/app/static/
     - media-content:/app/media/
     - logs-app:/app/logs
-    - ./Net640/apps:/app/Net640/apps
     depends_on:
       - db
       - redis

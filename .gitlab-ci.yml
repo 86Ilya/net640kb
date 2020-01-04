@@ -30,13 +30,13 @@ testing:
 
 clean:
   stage: clean 
-   tags:
-     - net640
-   script:
-     # delete the test containers
-     - docker container stop db_testing redis_testing user_cache selenium
-     # delete the test network
-     - docker network rm testing
+  tags:
+    - net640
+  script:
+    # delete the test containers
+    - docker container stop db_testing redis_testing user_cache selenium
+    # delete the test network
+    - docker network rm testing
   when: always
 
 deploy:
