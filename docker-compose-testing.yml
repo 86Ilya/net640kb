@@ -5,8 +5,6 @@ volumes:
 services:
   db:
     image: postgres
-    ports:
-      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_USER=${DATABASE_USER}
@@ -16,13 +14,9 @@ services:
   redis:
     restart: always
     image: redis
-    expose:
-      - "6379"
   user_cache:
     restart: always
     image: redis
-    expose:
-      - "6379"
   web:
     build:
          context: .
@@ -57,12 +51,6 @@ services:
       - logs-app:/srv/www/net640/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
-
-  selenium:
-    image: selenium/standalone-firefox-debug
-    ports:
-      - 4444:4444   # Selenium
-      - 5900:5900   # VNC server, password is secret
 
 volumes:
     static-content:
