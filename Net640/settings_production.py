@@ -1,4 +1,5 @@
 import os
+SITE_ADDRESS = 'https://www.aurov.pro:1443/'
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
