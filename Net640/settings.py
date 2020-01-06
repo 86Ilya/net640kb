@@ -1,9 +1,4 @@
 import os
-try:
-    from Net640.settings_develop import *  # noqa: F403, F401
-except ImportError:
-    from Net640.settings_production import *  # noqa: F403, F401
-
 MAX_PAGE_SIZE = 640 * 1024  # max user page size in bytes
 BYTES_IN_SYMB = 1
 CACHE_TIMEOUT = 60 * 60
@@ -142,3 +137,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 AUTH_USER_MODEL = 'user_profile.User'
+
+deploy_env = os.environ.get('DEPLOY_ENV')
+if deploy_env == 'DEVELOP':
+    from Net640.settings_develop import *  # noqa: F403, F401
+elif deploy_env == 'PRODUCTION':
+    from Net640.settings_production import *  # noqa: F403, F401
