@@ -42,12 +42,14 @@ services:
     restart: always
     image: nginx:latest
     ports:
-      - "8080:8080"
+      - "80:8080"
+      - "443:1443"
     depends_on:
           - web
     volumes:
       - static-content:/app/static
       - media-content:/app/media
+      - /opt/letsencrypt:/etc/letsencrypt
       - logs-app:/srv/www/net640/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
