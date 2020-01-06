@@ -42,8 +42,8 @@ services:
     restart: always
     image: nginx:latest
     ports:
-      - "80:8080"
-      - "443:1443"
+      - "8080:80"
+      - "1443:443"
     depends_on:
           - web
     volumes:
