@@ -34,7 +34,7 @@ services:
        - EMAIL_HOST_USER=${EMAIL_HOST_USER}
        - EMAIL_HOST=${EMAIL_HOST}
        - DEPLOY_ENV=${DEPLOY_ENV}
-    expose:     
+    expose:
        - "8000"
     volumes:
     - static-content:/app/static/

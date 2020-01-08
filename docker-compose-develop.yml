@@ -35,7 +35,11 @@ services:
        - REDIS_HOST=${REDIS_HOST}
        - REDIS_PORT=${REDIS_PORT}
        - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+       - EMAIL_HOST=${EMAIL_HOST}
+       - DEPLOY_ENV=${DEPLOY_ENV}
     volumes:
+    - ./Net640/apps:/app/Net640/apps
     - static-content:/app/static/
     - media-content:/app/media/
     - logs-app:/app/logs
@@ -53,7 +57,7 @@ services:
       - static-content:/app/static
       - media-content:/app/media
       - logs-app:/srv/www/net640/logs
-      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/nginx_develop/:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
 
   selenium:
