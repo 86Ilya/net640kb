@@ -172,6 +172,8 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             except Exception as error:
                 logging.exception(f"There is an exception with sending the activation code: {error}")
                 self.delete()
+                raise UserException("There are unknown problems with sending activation code. "
+                                    "Please contact with the system administrator")
 
     def get_avatar_url(self):
         if self.avatar:
