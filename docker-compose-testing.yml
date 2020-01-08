@@ -39,7 +39,7 @@ services:
     volumes:
     - static-content:/app/static/
     - media-content:/app/media/
-    - logs-app:/app/logs
+    - ${LOGS}/django:/app/logs/django
     depends_on:
       - db
       - redis
@@ -47,6 +47,8 @@ services:
   daphne:
     extends: baseweb
     command: /app/docker/web_service/start_daphne.sh
+    volumes:
+    - ${LOGS}/daphne:/app/logs/django/
     depends_on:
       - db
       - redis
@@ -63,7 +65,7 @@ services:
       - static-content:/app/static
       - media-content:/app/media
       - /opt/letsencrypt:/etc/letsencrypt
-      - logs-app:/srv/www/net640/logs
+      - ${LOGS}/nginx:/var/www/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
 

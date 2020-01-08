@@ -166,8 +166,12 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             except SMTPException as error:
                 # Any SMPTExcetion is a good reason not to save the user profile
                 self.delete()
-                logging.error(f"Got SMPT exception: {error}")
-                raise UserException("Some problems with processing your email account")
+                logging.error(f"Got SMPT error: {error}")
+                raise UserException("There are problems with the processing of your email. "
+                                    "Check that your email address is correct.")
+            except Exception as error:
+                logging.exception(f"There is an exception with sending the activation code: {error}")
+                self.delete()
 
     def get_avatar_url(self):
         if self.avatar:

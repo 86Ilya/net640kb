@@ -1,7 +1,5 @@
 version: '2.0'
 
-volumes:
-  postgres_data:
 services:
   baseweb:
     build:
@@ -42,9 +40,9 @@ services:
     command: /app/docker/web_service/start_uwsgi.sh
     volumes:
     - ./Net640/apps:/app/Net640/apps
+    - ${LOGS}/django:/app/logs/django
     - static-content:/app/static/
     - media-content:/app/media/
-    - logs-app:/app/logs
     depends_on:
       - db
       - redis
@@ -54,9 +52,7 @@ services:
     command: /app/docker/web_service/start_daphne.sh
     volumes:
     - ./Net640/apps:/app/Net640/apps
-    - static-content:/app/static/
-    - media-content:/app/media/
-    - logs-app:/app/logs
+    - ${LOGS}/daphne:/app/logs/django/
     depends_on:
       - db
       - redis
@@ -70,7 +66,7 @@ services:
     volumes:
       - static-content:/app/static
       - media-content:/app/media
-      - logs-app:/srv/www/net640/logs
+      - ${LOGS}/nginx:/var/www/logs
       - ./docker/nginx_develop/:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
 
@@ -83,4 +79,3 @@ services:
 volumes:
     static-content:
     media-content:
-    logs-app:

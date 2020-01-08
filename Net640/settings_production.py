@@ -10,3 +10,36 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = ''
 
 ALLOWED_HOSTS = ['www.aurov.pro']
+# TESTING PRODUCTION ENV
+Debug = True
+
+LOGGING = {  # noqa
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+                    'verbose': {
+                                    'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                                    'style': '{',
+                                },
+                    'simple': {
+                                    'format': '{levelname} {message}',
+                                    'style': '{',
+                                },
+                       },
+        'handlers': {
+                    'file': {
+                                    'level': 'DEBUG',
+                                    'class': 'logging.FileHandler',
+                                    'filename': '/app/logs/django/django_debug.log',
+                                    'formatter': 'verbose',
+
+                                },
+                },
+        'loggers': {
+                    'django': {
+                                    'handlers': ['file'],
+                                    'level': 'DEBUG',
+                                    'propagate': True,
+                                },
+                },
+}

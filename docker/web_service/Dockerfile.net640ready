@@ -3,7 +3,7 @@ from python:3.7
 COPY requirements.txt /tmp/
 
 RUN apt-get update
-RUN apt-get install -y python3-dev git vim mc
+RUN apt-get install -y python3-dev git vim mc wget telnet
 
 RUN pip install -r /tmp/requirements.txt
 RUN pip install channels==2.2.0

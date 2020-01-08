@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . /app
 
 RUN apt-get update
-RUN apt-get install -y python3-dev git vim mc wget
+RUN apt-get install -y python3-dev git vim mc wget telnet
 
 RUN pip install -r requirements-develop.txt
 RUN pip install channels==2.2.0
