@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$DEPLOY_ENV" -eq "DEVELOP" ]]
+if [[ -n "$DEPLOY_ENV" && "$DEPLOY_ENV" -eq "DEVELOP" ]]
 then
   python /app/manage.py makemigrations
 fi
