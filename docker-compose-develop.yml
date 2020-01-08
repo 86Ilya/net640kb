@@ -3,6 +3,22 @@ version: '2.0'
 volumes:
   postgres_data:
 services:
+  baseweb:
+    build:
+         context: .
+         dockerfile: ./docker/web_service/Dockerfile-develop
+    environment:
+       - SECRET_KEY=${SECRET_KEY}
+       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+       - DATABASE_USER=${DATABASE_USER}
+       - DATABASE_NAME=${DATABASE_NAME}
+       - DATABASE_HOST=${DATABASE_HOST}
+       - REDIS_HOST=${REDIS_HOST}
+       - REDIS_PORT=${REDIS_PORT}
+       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+       - EMAIL_HOST=${EMAIL_HOST}
+       - DEPLOY_ENV=${DEPLOY_ENV}
   db:
     image: postgres
     ports:
@@ -22,22 +38,20 @@ services:
     expose:
       - "6379"
   web:
-    build:
-         context: .
-         dockerfile: ./docker/web_service/Dockerfile-develop
-    command: /app/docker/web_service/fire.sh
-    environment:
-       - SECRET_KEY=${SECRET_KEY}
-       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-       - DATABASE_USER=${DATABASE_USER}
-       - DATABASE_NAME=${DATABASE_NAME}
-       - DATABASE_HOST=${DATABASE_HOST}
-       - REDIS_HOST=${REDIS_HOST}
-       - REDIS_PORT=${REDIS_PORT}
-       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-       - EMAIL_HOST=${EMAIL_HOST}
-       - DEPLOY_ENV=${DEPLOY_ENV}
+    extends: baseweb
+    command: /app/docker/web_service/start_uwsgi.sh
+    volumes:
+    - ./Net640/apps:/app/Net640/apps
+    - static-content:/app/static/
+    - media-content:/app/media/
+    - logs-app:/app/logs
+    depends_on:
+      - db
+      - redis
+
+  daphne:
+    extends: baseweb
+    command: /app/docker/web_service/start_daphne.sh
     volumes:
     - ./Net640/apps:/app/Net640/apps
     - static-content:/app/static/

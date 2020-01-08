@@ -3,6 +3,22 @@ version: '2.0'
 volumes:
   postgres_data:
 services:
+  baseweb:
+    build:
+         context: .
+         dockerfile: ./docker/web_service/Dockerfile-develop
+    environment:
+       - SECRET_KEY=${SECRET_KEY}
+       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+       - DATABASE_USER=${DATABASE_USER}
+       - DATABASE_NAME=${DATABASE_NAME}
+       - DATABASE_HOST=${DATABASE_HOST}
+       - REDIS_HOST=${REDIS_HOST}
+       - REDIS_PORT=${REDIS_PORT}
+       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+       - EMAIL_HOST=${EMAIL_HOST}
+       - DEPLOY_ENV=${DEPLOY_ENV}
   db:
     image: postgres
     environment:
@@ -18,24 +34,8 @@ services:
     restart: always
     image: redis
   web:
-    build:
-         context: .
-         dockerfile: ./docker/web_service/Dockerfile-develop
-    command: /app/docker/web_service/fire.sh
-    environment:
-       - SECRET_KEY=${SECRET_KEY}
-       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-       - DATABASE_USER=${DATABASE_USER}
-       - DATABASE_NAME=${DATABASE_NAME}
-       - DATABASE_HOST=${DATABASE_HOST}
-       - REDIS_HOST=${REDIS_HOST}
-       - REDIS_PORT=${REDIS_PORT}
-       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-       - EMAIL_HOST=${EMAIL_HOST}
-       - DEPLOY_ENV=${DEPLOY_ENV}
-    expose:
-       - "8000"
+    extends: baseweb
+    command: /app/docker/web_service/start_uwsgi.sh
     volumes:
     - static-content:/app/static/
     - media-content:/app/media/
@@ -43,6 +43,14 @@ services:
     depends_on:
       - db
       - redis
+
+  daphne:
+    extends: baseweb
+    command: /app/docker/web_service/start_daphne.sh
+    depends_on:
+      - db
+      - redis
+
   nginx:
     restart: always
     image: nginx:latest
