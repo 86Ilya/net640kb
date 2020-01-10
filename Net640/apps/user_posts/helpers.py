@@ -96,10 +96,10 @@ def user_post_process_action_post(request, user_id):
         else:
             from_user = get_object_or_404(User, id=user_id)
 
-    # Only friend can see posts
-    if from_user == user or user.check_relationship(from_user) == RELATIONSHIP_FRIENDS:
-        for post in Post.objects.filter(user=from_user):
-            posts.append(post.as_dict(user))
+        # Only friend can see posts
+        if from_user == user or user.check_relationship(from_user) == RELATIONSHIP_FRIENDS:
+            for post in Post.objects.filter(user=from_user):
+                posts.append(post.as_dict(user))
         context.update({"result": True, "posts": posts})
     return context
 
