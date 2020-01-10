@@ -101,7 +101,7 @@ def user_view_post(master, page_owner, post):
     if action == "add":
         # Send request for adding to friends
         result = master.accept(page_owner)
-    # Get information about user (relationship status, posts...)
+    # Get information about user (relationship status, ...)
     elif action == "get_user_info":
         relationship_status = master.check_relationship(page_owner)
         result = {'relationship_status': relationship_status,
