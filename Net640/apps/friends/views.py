@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
-from Net640.apps.user_posts.models import Post
 from Net640.apps.user_posts.forms import CommentForm
-from Net640.apps.user_profile.models import RELATIONSHIP_FRIENDS
 
 User = get_user_model()
 
@@ -92,6 +90,7 @@ def user_view(request, user_id):
         'page_owner_size': page_owner.get_size(),
         'user': master,
         'comment_form': CommentForm(),
+        'explicit_processing_url': reverse('user_post_processing', kwargs={'user_id': user_id}),
     }
     return render(request, 'user_view.html', context)
 
@@ -105,13 +104,7 @@ def user_view_post(master, page_owner, post):
     # Get information about user (relationship status, posts...)
     elif action == "get_user_info":
         relationship_status = master.check_relationship(page_owner)
-        posts = []
-        # Only friend can see posts
-        if relationship_status == RELATIONSHIP_FRIENDS:
-            for post in Post.objects.filter(user=page_owner)[:10]:
-                posts.append(post.as_dict(master))
         result = {'relationship_status': relationship_status,
-                  'posts': posts,
                   'page_owner': {'id': page_owner.id, 'username': page_owner.username},
                   'status': True}
     else:

@@ -92,7 +92,6 @@ function get_user_info(){
 
     post_request(data, this.doc_path).then((response)=>{
       let json_resp = JSON.parse(response);
-      this.posts = json_resp.posts;
       this.relationship_status = parseInt(json_resp.relationship_status);
       this.update_relationship_descr();
 
