@@ -13,6 +13,7 @@ from Net640.apps.user_profile.helpers import base
 @require_http_methods(["GET", "POST"])
 def mainpage_view(request):
     context = base(request)
+    context['explicit_processing_url'] = None
 
     if context['user']:
         post_form = PostForm()

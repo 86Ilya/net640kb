@@ -31,7 +31,6 @@ def base(request):
 def save_user_by_form(request, context):
     valid = False
     user_form = UserForm(request.POST, request.FILES)
-    user_form.is_valid()
 
     if user_form.is_valid():
         valid = True

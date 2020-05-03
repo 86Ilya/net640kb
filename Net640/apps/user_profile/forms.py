@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.forms import PasswordResetForm
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
@@ -13,7 +14,23 @@ username_validator = RegexValidator(r'^[\w\d_\-]+$',
                                     "Username should contain only letters, digits, underscores, and dashes")
 
 
-class UserForm(forms.ModelForm):
+class CleanPasswordMixin:
+
+    def _clean_password(self, cleaned_data):
+        password = cleaned_data['password']
+        password_again = cleaned_data['password_again']
+        validation_errors = list()
+
+        if len(password) == 0 and len(password_again) == 0:
+            return cleaned_data, validation_errors
+        if password != password_again:
+            validation_errors.append(forms.ValidationError("Passwords mismatch"))
+        elif len(password) < 8:
+            validation_errors.append(forms.ValidationError("Password length must be at least 8 symbols"))
+        return cleaned_data, validation_errors
+
+
+class UserForm(CleanPasswordMixin, forms.ModelForm):
     username = forms.CharField(widget=forms.TextInput, max_length=120, min_length=3, validators=[username_validator])
     email = forms.EmailField(widget=forms.EmailInput)
     password = forms.CharField(widget=forms.PasswordInput)
@@ -85,20 +102,13 @@ class UserForm(forms.ModelForm):
             validation_errors.append(forms.ValidationError(_('You have only 640Kb for all purposes!'), code='oversize'))
 
         # Clean password
-        password = cleaned_data['password']
-        password_again = cleaned_data['password_again']
-        if len(password) == 0 and len(password_again) == 0:
-            return cleaned_data
-        if password != password_again:
-            validation_errors.append(forms.ValidationError("Passwords mismatch"))
-        elif len(password) < 8:
-            validation_errors.append(forms.ValidationError("Password length must be at least 8 symbols"))
-        else:
-            # TODO is it ok?
-            cleaned_data['password'] = make_password(password)
+        cleaned_data, password_clean_errors = self._clean_password(cleaned_data)
 
+        validation_errors += password_clean_errors
         if validation_errors:
             raise forms.ValidationError(validation_errors)
+
+        cleaned_data['password'] = make_password(cleaned_data['password'])
 
         return cleaned_data
 
@@ -181,9 +191,8 @@ class UserUpdateForm(UserForm):
         return cleaned_data
 
 
-class UserRequestPasswordResetForm(forms.ModelForm):
-    # we have only one field in this form, so it's more easy to inherit from ModelForm
-    email = forms.EmailField(widget=forms.EmailInput)
+class UserRequestPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(widget=forms.EmailInput, max_length=256)
 
     class Meta:
         model = User
@@ -204,3 +213,28 @@ class UserPasswordUpdateForm(UserForm):
 
     class Meta(UserForm.Meta):
         fields = ('password', 'password_again')
+
+
+class UserPasswordResetConfirmForm(CleanPasswordMixin, forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput)
+    password_again = forms.CharField(widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data, password_clean_errors = self._clean_password(cleaned_data)
+
+        if password_clean_errors:
+            raise forms.ValidationError(password_clean_errors)
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        password = self.cleaned_data["password"]
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user

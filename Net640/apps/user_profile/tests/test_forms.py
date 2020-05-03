@@ -120,6 +120,7 @@ class TestUserUpdateForm(TestCase):
                                       'patronymic': newpatronymic,
                                       'birth_date': newbirth_date},
                                      instance=self.user)
+        update_form.is_valid()
         self.assertTrue(update_form.is_valid())
         update_form.save()
         self.user.refresh_from_db()
@@ -142,7 +143,7 @@ class TestUserUpdateForm(TestCase):
         avatar = {'avatar': SimpleUploadedFile('newavatar.bmp', img_file.read(), content_type)}
         update_form = UserUpdateForm({}, avatar, instance=self.user)
         self.assertFalse(update_form.is_valid())
-        self.assertEqual(update_form.errors['__all__'][0], 'Not enough space')
+        self.assertEqual(update_form.errors['__all__'][0], 'You have only 640Kb for all purposes!')
 
     def test_update_user_password(self):
         newpass = 'qweasdzxc'
@@ -187,10 +188,10 @@ class TestUserRequestPasswordResetForm(TestCase):
         self.assertTrue(reset_form.is_valid())
 
     def test_request_password_reset_form_when_email_is_too_long(self):
-        email = 'X' * 250 + "@m.ru"
+        email = 'X' * 252 + "@m.ru"
         reset_form = UserRequestPasswordResetForm({'email': email})
         self.assertFalse(reset_form.is_valid())
-        self.assertIn('Ensure this value has at most 254 characters', reset_form.errors['email'][0])
+        self.assertIn('Ensure this value has at most 256 characters', reset_form.errors['email'][0])
 
     def test_request_password_reset_form_when_email_had_wrong_symbols(self):
         email = "xФxx@m.ru"

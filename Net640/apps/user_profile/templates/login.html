@@ -35,8 +35,8 @@
       </div>
       <div class="row">
         <div class="col-12 col-md-6 mt-3 pl-5 mx-auto">
-          <a class = "row" href="/signup">I am new user</a>
-          <a class = "row mt-2" href="/password_reset_request">Forgot password</a>
+          <a class = "row" href={% url 'user_profile:signup' %}>I am new user</a>
+          <a class = "row mt-2" href={% url 'user_profile:reset_password' %}>Forgot password</a>
         </div>
       </div>
     </div>

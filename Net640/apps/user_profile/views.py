@@ -1,16 +1,20 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_http_methods, require_GET
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
 
 from Net640.httpcodes import HTTP_BAD_REQUEST, HTTP_OK, HTTP_UNAUTHORIZED
-from Net640.apps.user_profile.helpers import base, save_user_by_form, update_user_by_form, reset_password_for_email
-from Net640.apps.user_profile.forms import UserForm, UserUpdateForm,\
-    UserRequestPasswordResetForm, UserPasswordUpdateForm
-from Net640.apps.user_profile.models import DEFAULT_AVATAR_URL, UserResetPassword
-from Net640.apps.user_profile.exceptions import UserException
+from Net640.apps.user_profile.helpers import base, save_user_by_form, update_user_by_form
+from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
+
+from Net640.apps.user_profile.models import DEFAULT_AVATAR_URL
+from Net640.apps.user_profile.tokens import account_activation_token
 
 
 User = get_user_model()
@@ -19,6 +23,7 @@ User = get_user_model()
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     context = base(request)
+    context.update({'login_failed': False})
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
@@ -41,7 +46,19 @@ def signup_view(request):
         signup_form, valid = save_user_by_form(request, context)
         context.update({'signup_form': signup_form})
         if valid:
-            return render(request, 'signup_code_was_sent.html', {'error': None}, status=status)
+            user = context['user']
+            # send activation code
+            subject = 'Activate Your Net640kb Account'
+            current_site = get_current_site(request)
+            message = render_to_string('profile_activation_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            })
+
+            user.email_user(subject, message)
+            return redirect('user_profile:account_activation_sent')
         else:
             status = HTTP_BAD_REQUEST
     else:
@@ -97,71 +114,22 @@ def logout_view(request):
     return redirect('mainpage')
 
 
-@require_http_methods(["GET"])
-def signup_confirm(request, user_id, confirmation_code):
-    status = HTTP_OK
-    context = {'confirmed': False}
-    user = get_object_or_404(User, id=user_id)
-    if not user.is_active:
-        if user.get_activation_code() == confirmation_code:
-            user.is_active = True
-            user.save()
-            context.update({'confirmed': True})
-        else:
-            status = HTTP_BAD_REQUEST
-            context.update({'reason': 'Confirmation code is incorrect'})
+def signup_confirm(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.email_confirmed = True
+        user.save()
+        login(request, user)
+        return redirect('mainpage')
     else:
-        return redirect('login')
-
-    return render(request, 'signup_confirm.html', context, status=status)
+        return render(request, 'profile_confirmed.html', context={'confirmed': False})
 
 
-@require_http_methods(["GET", "POST"])
-def password_reset_request(request):
-    password_reset_request_form = UserRequestPasswordResetForm()
-    context = {'reset_password_form': password_reset_request_form}
-
-    if request.method == "POST":
-        email = request.POST['email']
-        try:
-            reset_password_for_email(email)
-            context.update({'info': 'Link was sent to your email'})
-        except Exception as error:
-            context.update({'error': error})
-
-    return render(request, "password_reset_request.html", context)
-
-
-@require_http_methods(["GET", "POST"])
-def password_reset(request, user_id, confirmation_code):
-    status = HTTP_OK
-    password_update_form = UserPasswordUpdateForm()
-    context = {'reset': False}
-    context.update({'password_update_form': password_update_form})
-
-    if request.method == "GET":
-        user = get_object_or_404(User, id=user_id)
-        if not user.is_active:
-            context.update({'error': 'Account is not activated. Visit activation link first.'})
-        else:
-            try:
-                reset_code = user.get_password_reset_code()
-                if reset_code != confirmation_code:
-                    context.update({'error': 'Reset code is incorrect'})
-            except UserException as error:
-                context.update({'error': error})
-
-    if request.method == "POST":
-        user = get_object_or_404(User, id=user_id)
-        if user.is_active and user.get_password_reset_code() == confirmation_code:
-            password_update_form = UserPasswordUpdateForm(request.POST, instance=user)
-            if password_update_form.is_valid():
-                user_update = password_update_form.save(commit=False)
-                user_update.save()
-                # delete record about reset code from db
-                UserResetPassword.objects.get(user=user).delete()
-                context.update({'info': 'Password successfully changed'})
-            else:
-                context.update({'password_update_form': password_update_form})
-
-    return render(request, 'password_reset.html', context, status=status)
+def signup_confirm_sent(request):
+    return render(request, 'profile_activation_code_was_sent.html', context={'error': False})

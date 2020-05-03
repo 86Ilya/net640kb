@@ -10,7 +10,7 @@ except ImportError:
 
 
 urlpatterns = [
-    path('', include('Net640.apps.user_profile.urls')),
+    path('user/', include('Net640.apps.user_profile.urls', namespace='user_profile')),
     path('', include('Net640.apps.friends.urls')),
     path('', include('Net640.apps.chat.urls')),
     path('', include('Net640.apps.images.urls')),
