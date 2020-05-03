@@ -57,8 +57,7 @@ services:
     restart: always
     image: nginx:latest
     ports:
-      - "8080:80"
-      - "1443:443"
+      - "443:443"
     depends_on:
           - web
     volumes:
@@ -68,6 +67,10 @@ services:
       - ${LOGS}/nginx:/var/www/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
+      # my cv project
+      - /home/ilya/www.aurov.pro/:/www.aurov.pro
+      # ssl certs
+      - /etc/letsencrypt/:/etc/letsencrypt/
 
 volumes:
     static-content:
