@@ -9,7 +9,7 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = ''
 
-ALLOWED_HOSTS = ['https://www.640kb.fun/']
+ALLOWED_HOSTS = ['www.640kb.fun']
 # TESTING PRODUCTION ENV
 Debug = True
 
