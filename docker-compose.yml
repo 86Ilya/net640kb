@@ -3,27 +3,10 @@ version: '2.0'
 volumes:
   postgres_data:
 services:
-  db:
-    image: postgres
-    ports:
-      - "5432:5432"
-    volumes:
-        /root/dbdata/:/var/lib/postgresql/data
-  redis:
-    restart: always
-    image: redis
-    expose:
-      - "6379"
-  user_cache:
-    restart: always
-    image: redis
-    expose:
-      - "6379"
-  web:
+  baseweb:
     build:
          context: .
-         dockerfile: ./docker/web_service/Dockerfile
-    command: /app/docker/web_service/fire.sh
+         dockerfile: ./docker/web_service/Dockerfile-develop
     environment:
        - SECRET_KEY=${SECRET_KEY}
        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -33,10 +16,39 @@ services:
        - REDIS_HOST=${REDIS_HOST}
        - REDIS_PORT=${REDIS_PORT}
        - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+       - EMAIL_HOST=${EMAIL_HOST}
+       - DEPLOY_ENV=${DEPLOY_ENV}
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_DB=${DATABASE_NAME}
+    volumes:
+      - /opt/testdb/:/var/lib/postgresql/data
+  redis:
+    restart: always
+    image: redis
+  user_cache:
+    restart: always
+    image: redis
+  web:
+    extends: baseweb
+    command: /app/docker/web_service/start_uwsgi.sh
     volumes:
     - static-content:/app/static/
     - media-content:/app/media/
-    - logs-app:/app/logs
+    - ${LOGS}/django:/app/logs/django
+    depends_on:
+      - db
+      - redis
+
+  daphne:
+    extends: baseweb
+    command: /app/docker/web_service/start_daphne.sh
+    volumes:
+    - ${LOGS}/daphne:/app/logs/django/
     depends_on:
       - db
       - redis
@@ -44,16 +56,21 @@ services:
   nginx:
     restart: always
     image: nginx:latest
-    ports: 
-      - "8080:8080"
+    ports:
+      - "443:443"
     depends_on:
           - web
     volumes:
       - static-content:/app/static
       - media-content:/app/media
-      - logs-app:/srv/www/net640/logs
+      - /opt/letsencrypt:/etc/letsencrypt
+      - ${LOGS}/nginx:/var/www/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
+      # my cv project
+      - /home/ilya/www.aurov.pro/:/www.aurov.pro
+      # ssl certs
+      - /etc/letsencrypt/:/etc/letsencrypt/
 
 volumes:
     static-content:

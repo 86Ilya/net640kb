@@ -10,7 +10,7 @@ build:
     - net640
   script:
     - cd /home/gitlab-runner/net640kb && git pull
-    - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose-testing.yml build
+    - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose.yml build
   when: always
 
 
@@ -44,6 +44,6 @@ deploy:
   tags:
     - net640
   script:
-    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose-testing.yml down
-    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose-testing.yml up -d
+    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose.yml down
+    - cd /home/gitlab-runner/net640kb && docker-compose -f docker-compose.yml up -d
   when: on_success

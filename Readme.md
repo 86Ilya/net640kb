@@ -61,3 +61,6 @@ We use [SemVer](http://semver.org/) for versioning.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Link
+The current stage of the project is alpha testing. [www.640kb.fun](https://www.640kb.fun/)
