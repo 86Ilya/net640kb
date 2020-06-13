@@ -4,6 +4,7 @@ from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
 
 from django.db import models, connection
+from django.shortcuts import reverse
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
@@ -143,6 +144,12 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         else:
             return DEFAULT_AVATAR_URL
 
+    def get_chat_url(self):
+        return reverse('chat:chat_room', kwargs={'user_id': self.id})
+
+    def get_page_url(self):
+        return reverse('friends:user_view', kwargs={'user_id': self.id})
+
     def remove_avatar(self):
         os.remove(self.avatar.path)
         self.avatar = None
@@ -268,12 +275,14 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         waiting_for_accept = list()
         sended_requests = list()
         for profile in self.get_relationships(RELATIONSHIP_FRIENDS):
-            friends.append({'id': profile.id, 'firstname': profile.firstname, 'username': profile.username})
-
+            friends.append({'id': profile.id, 'firstname': profile.firstname,
+                            'username': profile.username, 'url': profile.get_page_url()})
         for profile in self.get_waiting_for_accept():
-            waiting_for_accept.append({'id': profile.id, 'firstname': profile.firstname, 'username': profile.username})
+            waiting_for_accept.append({'id': profile.id, 'firstname': profile.firstname,
+                                       'username': profile.username, 'url': profile.get_page_url()})
         for profile in self.get_requests_for_relationship():
-            sended_requests.append({'id': profile.id, 'firstname': profile.firstname, 'username': profile.username})
+            sended_requests.append({'id': profile.id, 'firstname': profile.firstname,
+                                    'username': profile.username, 'url': profile.get_page_url()})
 
         return friends, waiting_for_accept, sended_requests
 

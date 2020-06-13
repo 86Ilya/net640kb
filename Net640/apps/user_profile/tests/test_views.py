@@ -26,7 +26,7 @@ class TestUserProfileViews(TestCase):
 
     def test_login_view(self):
         client = Client()
-        response = client.post(reverse('user_profile:login'),
+        response = client.post(reverse('profile:login'),
                                {'username': self.user.username, 'password': '12345678'}, follow=True)
         # check that user redirected to mainpage
         path, code = response.redirect_chain[0]
@@ -42,7 +42,7 @@ class TestUserProfileViews(TestCase):
         email_addr = random_name + '@m.ru'
 
         client = Client()
-        response = client.post(reverse('user_profile:signup'), {'username': random_name,
+        response = client.post(reverse('profile:signup'), {'username': random_name,
                                                                 'password': '12345678',
                                                                 'password_again': '12345678',
                                                                 'email': email_addr
@@ -64,7 +64,7 @@ class TestUserProfileViews(TestCase):
         email_addr = random_name + '@m.ru'
 
         client = Client()
-        response = client.post(reverse('user_profile:signup'), {'username': random_name,
+        response = client.post(reverse('profile:signup'), {'username': random_name,
                                                                 'password': '12345678',
                                                                 'password_again': '12345678',
                                                                 'email': email_addr
@@ -83,7 +83,7 @@ class TestUserProfileViews(TestCase):
     def test_profile_view_when_update_existing_user(self):
         client = Client()
         client.login(username=self.user.username, password='12345678')
-        response = client.post(reverse('user_profile:profile'), {'firstname': 'My First Name',
+        response = client.post(reverse('profile:my_profile'), {'firstname': 'My First Name',
                                                                  'lastname': 'My Last Name',
                                                                  'patronymic': 'My Patronymic',
                                                                  'password': '87654321',
@@ -110,14 +110,14 @@ class TestUserProfileViews(TestCase):
 
         client = Client()
         client.login(username=user.username, password='12345678')
-        response = client.post(reverse('user_profile:profile'), {'action': 'remove_avatar'})
+        response = client.post(reverse('profile:my_profile'), {'action': 'remove_avatar'})
         self.assertEqual(response.status_code, HTTP_OK)
         # check after deletion
         self.assertFalse(os.path.exists(user.avatar.path))
 
     def test_password_reset(self):
         client = Client()
-        response = client.post(reverse('user_profile:reset_password'), {'email': self.user.email}, follow=True)
+        response = client.post(reverse('profile:reset_password'), {'email': self.user.email}, follow=True)
         self.assertEqual(response.status_code, HTTP_OK)
         self.assertIn(b'We\'ve emailed you instructions for setting your password', response.content)
         # check email for reset code

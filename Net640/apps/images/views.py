@@ -48,7 +48,7 @@ def user_images_view(request):
                 image.save()
             except NotEnoughSpace:
                 pass
-            return redirect('user_images')
+            return redirect('images:my_images')
     else:
         image_form = ImageForm()
     return render(request, 'user_images.html', {

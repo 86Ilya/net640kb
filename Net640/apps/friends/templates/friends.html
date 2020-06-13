@@ -41,8 +41,7 @@
     </div>
     <div v-for="somebody in friends_sent_requests_list" class="row mt-1">
         <div class="col-8 col-md-2">
-          {#<div class="h4">[[somebody.username]]</div>#}
-          <a :href='"/id"+somebody.id' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
+          <a :href='somebody.url' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
         </div>
         <div v-on:click="cancel" class="col-4 col-md-1 btn btn-danger" :data-user_id="somebody.id">
          Cancel 
@@ -58,17 +57,12 @@
     </div>
 
     <div v-for="somebody in friends_list" class="row no_link_behaviour mt-1">
-        <a :href='"/id"+somebody.id' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
+        <a :href='somebody.url' class="col-8 col-md-2">[[somebody.username]] ([[somebody.firstname]])</a>
         <div class="col-4 col-md-1 btn btn-danger"  v-on:click="cancel" :data-user_id="somebody.id" :data-relationship="2">
             Remove
         </div>
     </div>
   </div>
-  {#<div v-else class="container">#}
-      {#<div class="row">#}
-          {#<div class="h4">You have no friends!</div>#}
-      {#</div>#}
-  {#</div>#}
 </div>
 
 {% load static %}

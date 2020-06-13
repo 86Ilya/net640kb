@@ -6,9 +6,9 @@
       {% if explicit_processing_url %}
        data-userpost-processing-url={{explicit_processing_url}}
       {% else %}
-       data-userpost-processing-url="{% url 'user_post_processing' %}"
+       data-userpost-processing-url="{% url 'posts:user_post_processing' %}"
       {% endif %}
-       data-usercomment-processing-url="{% url 'user_comment_processing' %}"
+       data-usercomment-processing-url="{% url 'posts:user_comment_processing' %}"
        >
   </div>
   <!-- end of default values -->

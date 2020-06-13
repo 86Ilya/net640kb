@@ -18,6 +18,7 @@
        data-page_owner_username="{{page_owner_username}}"
        data-page_owner_id="{{page_owner_id}}"
        data-page_owner_size="{{page_owner_size}}"
+       data-page_owner_chat_url="{{page_owner_chat_url}}"
        >
 
 
@@ -39,8 +40,9 @@
               </span>
           Page size: [[page_owner_size]]
         </div>
-        <a :href='"/id"+page_owner_id+"/chat"' v-if="friend" class="col-12 col-md-2 mt-2 simple_square text-center">Chat</a>
+        <a :href='page_owner_chat_url' v-if="friend" class="col-12 col-md-2 mt-2 simple_square text-center">Chat</a>
       </div>
+
     </div>
 
   </div>

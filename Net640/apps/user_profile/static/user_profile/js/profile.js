@@ -2,8 +2,8 @@ window.addEventListener("load", profile_func);
 
 function profile_func(){
     let copy_link_btn = document.getElementById("copy_link")
-    let user_page_url = window.location.host + '/id' + copy_link_btn.getAttribute("data-user-id");
-
+    let default_values = document.querySelector('[data-application-variables]');
+    let user_page_url = window.location.host + default_values.getAttribute('data-user_page_url');
     let doc_path = window.location.pathname;
     let csrftoken = document.querySelector('input[name=csrfmiddlewaretoken]').value;
     let avatar_trash_icon =document.querySelector(".fa-trash-alt");

@@ -47,7 +47,7 @@ class TestChat(ChannelsBaseTestCase):
         browser.find_element(By.ID, "send_message_btn").click()
         mymessage = browser.find_element(By.CLASS_NAME, "chat__table_message_written_by_owner")
         assert mymessage.text == "Hi! This is test message for user id2"
-        browser.get(self.live_server_url + reverse("user_profile:logout"))
+        browser.get(self.live_server_url + reverse("profile:logout"))
 
     def user2_check_chatmessage_from_user1(self):
         browser = self.selenium
@@ -76,7 +76,7 @@ class TestChat(ChannelsBaseTestCase):
         # check own message
         mymessage = browser.find_element(By.CLASS_NAME, "chat__table_message_written_by_owner")
         assert mymessage.text == "Hi! This is test message for user id1"
-        browser.get(self.live_server_url + reverse("user_profile:logout"))
+        browser.get(self.live_server_url + reverse("profile:logout"))
 
     def test_chat_messaging(self):
         self.user1_send_chatmessage_to_user2()

@@ -9,6 +9,12 @@
 
 {% block content %}
 <div class="container">
+  <!-- default values -->
+  <div data-application-variables="default_values" class="d-none"
+       data-user_page_url={{user_page_url}}
+       >
+  </div>
+  <!-- end of default values -->
 
   <div class="row mt-2 no_link_behaviour">
     <a class="col-8 col-md-2 offset-md-10 menu__item" id="copy_link" data-user-id={{user.id}}>Copy link to my page</a>

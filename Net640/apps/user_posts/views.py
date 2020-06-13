@@ -53,7 +53,7 @@ def user_post_processing(request, user_id=None):
 @login_required
 @require_http_methods(["GET", "POST"])
 def user_news(request):
-    context = {'explicit_processing_url': reverse('user_news')}
+    context = {'explicit_processing_url': reverse('posts:news')}
 
     if request.method == "POST":
         result = user_news_processing_post_action(request)

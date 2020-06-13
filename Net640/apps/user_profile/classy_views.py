@@ -9,7 +9,7 @@ from Net640.apps.user_profile.forms import UserRequestPasswordResetForm, UserPas
 class Net640PasswordResetView(PasswordResetView):
     form_class = UserRequestPasswordResetForm
     template_name = 'password_reset_request.html'
-    success_url = reverse_lazy('user_profile:password_reset_done')
+    success_url = reverse_lazy('profile:password_reset_done')
     email_template_name = 'password_reset_email.html'
     from_email = settings.DEFAULT_FROM_EMAIL
 
@@ -21,7 +21,7 @@ class Net640PasswordResetDoneView(PasswordResetDoneView):
 class Net640PasswordResetConfirmView(PasswordResetConfirmView):
     form_class = UserPasswordResetConfirmForm
     template_name = 'password_reset_confirm.html'
-    success_url = reverse_lazy('user_profile:password_reset_complete')
+    success_url = reverse_lazy('profile:password_reset_complete')
 
 
 class Net640PasswordResetCompleteView(PasswordResetCompleteView):

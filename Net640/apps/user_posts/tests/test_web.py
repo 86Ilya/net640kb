@@ -38,7 +38,7 @@ class TestPosts(ChannelsBaseTestCase):
         browser.find_element(By.ID, "id_content").send_keys("test post")
         browser.find_element(By.CSS_SELECTOR, "[value='Send Post']").click()
         assert browser.find_element(By.CSS_SELECTOR, ".wordwrap").text.strip() == "test post"
-        browser.get(self.live_server_url + reverse("user_profile:logout"))
+        browser.get(self.live_server_url + reverse('profile:logout'))
         # delete our post from DB
         Post.objects.filter(content="test post").delete()
         User.objects.all()
@@ -58,7 +58,7 @@ class TestPosts(ChannelsBaseTestCase):
         # click on the heart icon to add like
         browser.find_element(By.CSS_SELECTOR, ".fa-heart").click()
         assert browser.find_element(By.CSS_SELECTOR, ".badge").text == "1.0"
-        browser.get(self.live_server_url + reverse("user_profile:logout"))
+        browser.get(self.live_server_url + reverse('profile:logout'))
 
     def test_post_deletion(self):
         browser = self.selenium
@@ -79,4 +79,4 @@ class TestPosts(ChannelsBaseTestCase):
         # if there is a "test post" exists on the page that it's an error
         with self.assertRaises(NoSuchElementException):
             browser.find_element(By.CSS_SELECTOR, ".wordwrap")
-        browser.get(self.live_server_url + reverse("user_profile:logout"))
+        browser.get(self.live_server_url + reverse('profile:logout'))

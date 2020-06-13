@@ -19,6 +19,7 @@ function user_view_func(){
     let relationship_status = default_values.getAttribute("data-relationship_status");
     let page_owner_username = default_values.getAttribute("data-page_owner_username");
     let page_owner_id = default_values.getAttribute("data-page_owner_id");
+    let page_owner_chat_url = default_values.getAttribute("data-page_owner_chat_url");
     let page_owner_size = default_values.getAttribute("data-page_owner_size");
 
     // TODO -> to function
@@ -44,6 +45,7 @@ function user_view_func(){
         csrftoken: csrftoken,
         page_owner_username: page_owner_username,
         page_owner_id: page_owner_id,
+        page_owner_chat_url: page_owner_chat_url,
         page_owner_size: page_owner_size,
         RELATIONSHIP_STATUSES: RELATIONSHIP_STATUSES,
         RELATIONSHIP_FRIENDS: RELATIONSHIP_FRIENDS,

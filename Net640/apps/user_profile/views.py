@@ -30,7 +30,7 @@ def login_view(request):
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('mainpage')
+            return redirect('posts:mainpage')
         else:
             context.update({'login_failed': True})
             return render(request, 'login.html', context, status=HTTP_UNAUTHORIZED)
@@ -58,7 +58,7 @@ def signup_view(request):
             })
 
             user.email_user(subject, message)
-            return redirect('user_profile:account_activation_sent')
+            return redirect('profile:account_activation_sent')
         else:
             status = HTTP_BAD_REQUEST
     else:
@@ -71,6 +71,9 @@ def signup_view(request):
 @login_required
 @require_http_methods(["GET", "POST"])
 def profile_view(request):
+    """
+    View/Update personal settings
+    """
     context = base(request)
     status = HTTP_OK
     if request.method == "POST":
@@ -87,7 +90,7 @@ def profile_view(request):
                                                    'patronymic': context['user'].patronymic,
                                                    'birth_date': context['user'].birth_date})
         login(request, context['user'])
-    context.update({'update_form': user_update_form})
+    context.update({'update_form': user_update_form, 'user_page_url': context['user'].get_page_url()})
     return render(request, 'profile.html', context, status=status)
 
 
@@ -111,7 +114,7 @@ def profile_view_action_processing(request, action):
 @require_GET
 def logout_view(request):
     logout(request)
-    return redirect('mainpage')
+    return redirect('posts:mainpage')
 
 
 def signup_confirm(request, uidb64, token):
@@ -126,7 +129,7 @@ def signup_confirm(request, uidb64, token):
         user.email_confirmed = True
         user.save()
         login(request, user)
-        return redirect('mainpage')
+        return redirect('posts:mainpage')
     else:
         return render(request, 'profile_confirmed.html', context={'confirmed': False})
 

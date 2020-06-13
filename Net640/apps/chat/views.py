@@ -12,14 +12,14 @@ User = get_user_model()
 
 @login_required
 @require_GET
-def chat_room(request, person_id):
+def chat_room(request, user_id):
     """
     Prepare variables for creating chat room.
     Render chat room from template.
     """
     # Group name for chat. It's uniq.
-    user_to_chat = get_object_or_404(User, pk=person_id)
-    id_list = [request.user.pk, int(person_id)]
+    user_to_chat = get_object_or_404(User, pk=user_id)
+    id_list = [request.user.pk, int(user_id)]
     id_list.sort()
     room_name = "room_" + str(id_list[0]) + "_with_" + str(id_list[1])
 

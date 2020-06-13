@@ -76,7 +76,7 @@ def user_view(request, user_id):
     """
     master = User.objects.get(pk=request.user.id)
     if int(user_id) == master.id:
-        return redirect('mainpage')
+        return redirect('posts:mainpage')
     page_owner = User.objects.get(pk=user_id)
     relationship_status = master.check_relationship(page_owner)
     if request.method == "POST" and request.POST.get("action", False):
@@ -87,14 +87,16 @@ def user_view(request, user_id):
         'relationship_status': relationship_status,
         'page_owner_username': page_owner.username,
         'page_owner_id': page_owner.id,
+        'page_owner_chat_url': page_owner.get_chat_url(),
         'page_owner_size': page_owner.get_size(),
         'user': master,
         'comment_form': CommentForm(),
-        'explicit_processing_url': reverse('user_post_processing', kwargs={'user_id': user_id}),
+        'explicit_processing_url': reverse('posts:user_post_processing', kwargs={'user_id': user_id}),
     }
     return render(request, 'user_view.html', context)
 
 
+# TODO move to rest api
 def user_view_post(master, page_owner, post):
     action = post["action"]
     result = {'status': False}
@@ -105,7 +107,9 @@ def user_view_post(master, page_owner, post):
     elif action == "get_user_info":
         relationship_status = master.check_relationship(page_owner)
         result = {'relationship_status': relationship_status,
-                  'page_owner': {'id': page_owner.id, 'username': page_owner.username},
+                  'page_owner': {'id': page_owner.id,
+                                 'url': page_owner.get_page_url(),
+                                 'username': page_owner.username},
                   'status': True}
     else:
         # incorrect operation

@@ -24,7 +24,7 @@ class TestFriendsView(TestCase):
     def test_view_send_request_for_relationship(self):
         client = Client()
         client.login(username=self.user1.username, password=self.password)
-        response = client.post(reverse('user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
+        response = client.post(reverse('friends:user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], RELATIONSHIP_REQUEST_HAS_SENT)
         self.user1.refresh_from_db()
@@ -36,7 +36,7 @@ class TestFriendsView(TestCase):
     def test_view_cancel_own_send_request_for_relationship(self):
         client = Client()
         client.login(username=self.user1.username, password=self.password)
-        response = client.post(reverse('user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
+        response = client.post(reverse('friends:user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
         self.assertEqual(response.status_code, 200)
         self.user1.refresh_from_db()
         self.user2.refresh_from_db()
@@ -44,7 +44,7 @@ class TestFriendsView(TestCase):
         self.assertEqual(self.user1.check_relationship(self.user2), RELATIONSHIP_REQUEST_HAS_SENT)
         self.assertEqual(self.user2.check_relationship(self.user1), RELATIONSHIP_WAITING_FOR_ACCEPT)
 
-        response = client.post(reverse('friends'), {'action': 'cancel', 'user_id': self.user2.id})
+        response = client.post(reverse('friends:my_friends'), {'action': 'cancel', 'user_id': self.user2.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], NO_RELATIONSHIP)
         self.user1.refresh_from_db()
@@ -56,7 +56,7 @@ class TestFriendsView(TestCase):
     def test_view_cancel_foreign_send_request_for_relationship(self):
         client = Client()
         client.login(username=self.user1.username, password=self.password)
-        response = client.post(reverse('user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
+        response = client.post(reverse('friends:user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
         self.assertEqual(response.status_code, 200)
         self.user1.refresh_from_db()
         self.user2.refresh_from_db()
@@ -65,7 +65,7 @@ class TestFriendsView(TestCase):
         self.assertEqual(self.user2.check_relationship(self.user1), RELATIONSHIP_WAITING_FOR_ACCEPT)
 
         client.login(username=self.user2.username, password=self.password)
-        response = client.post(reverse('friends'), {'action': 'cancel', 'user_id': self.user1.id})
+        response = client.post(reverse('friends:my_friends'), {'action': 'cancel', 'user_id': self.user1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], NO_RELATIONSHIP)
 
@@ -78,7 +78,7 @@ class TestFriendsView(TestCase):
     def test_add_to_friends(self):
         client = Client()
         client.login(username=self.user1.username, password=self.password)
-        response = client.post(reverse('user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
+        response = client.post(reverse('friends:user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
         self.assertEqual(response.status_code, 200)
         self.user1.refresh_from_db()
         self.user2.refresh_from_db()
@@ -87,7 +87,7 @@ class TestFriendsView(TestCase):
         self.assertEqual(self.user2.check_relationship(self.user1), RELATIONSHIP_WAITING_FOR_ACCEPT)
 
         client.login(username=self.user2.username, password=self.password)
-        response = client.post(reverse('friends'), {'action': 'accept', 'user_id': self.user1.id})
+        response = client.post(reverse('friends:my_friends'), {'action': 'accept', 'user_id': self.user1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], RELATIONSHIP_FRIENDS)
 
@@ -103,7 +103,7 @@ class TestFriendsView(TestCase):
     def test_remove_from_friends(self):
         client = Client()
         client.login(username=self.user1.username, password=self.password)
-        response = client.post(reverse('user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
+        response = client.post(reverse('friends:user_view', kwargs={'user_id': self.user2.id}), {'action': 'add'})
         self.assertEqual(response.status_code, 200)
         self.user1.refresh_from_db()
         self.user2.refresh_from_db()
@@ -112,7 +112,7 @@ class TestFriendsView(TestCase):
         self.assertEqual(self.user2.check_relationship(self.user1), RELATIONSHIP_WAITING_FOR_ACCEPT)
 
         client.login(username=self.user2.username, password=self.password)
-        response = client.post(reverse('friends'), {'action': 'accept', 'user_id': self.user1.id})
+        response = client.post(reverse('friends:my_friends'), {'action': 'accept', 'user_id': self.user1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], RELATIONSHIP_FRIENDS)
 
@@ -122,7 +122,7 @@ class TestFriendsView(TestCase):
         self.assertEqual(self.user1.check_relationship(self.user2), RELATIONSHIP_FRIENDS)
         self.assertEqual(self.user2.check_relationship(self.user1), RELATIONSHIP_FRIENDS)
 
-        response = client.post(reverse('friends'), {'action': 'cancel', 'user_id': self.user1.id})
+        response = client.post(reverse('friends:my_friends'), {'action': 'cancel', 'user_id': self.user1.id})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()['relationship_status'], NO_RELATIONSHIP)
 

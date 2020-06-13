@@ -32,7 +32,7 @@ class UpdateFlowMixin:
         room_name = get_updateflow_room_name(self.id)
 
         response = {'upd_relationship_waiting_for_accept': {'person': person.username,
-                                                            'ignore_page': reverse('friends')},
+                                                            'ignore_page': reverse('friends:my_friends')},
                     'error': False}
         async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
             'type': 'update_flow',
