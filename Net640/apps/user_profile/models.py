@@ -51,61 +51,14 @@ class GetSizeMixin:
 
     @__cache
     def get_size(self):
+        return self._get_size()
+
+    def _get_size(self):
         size = 0
         id = self.id
         cursor = connection.cursor()
-
-        # own page
-        cursor.execute('SELECT octet_length(t.*::text) FROM user_profile_user AS t WHERE t.id=%s;', [id, ])
-        size += cursor.fetchone()[0]
-        # posts
-        cursor.execute('select sum(length) from (\
-            SELECT octet_length(t.*::text) as "length" FROM user_posts_post AS t\
-            WHERE t.user_id=%s )posts_sum', [id, ])
-        posts_size = cursor.fetchone()[0]
-        if posts_size:
-            size += posts_size
-        # posts images
-        posts = Post.objects.filter(user_id=id)
-        for post in posts:
-            if post.image:
-                size += post.image.size
-        # posts likes
-        cursor.execute('select sum(length) from (SELECT octet_length(t.*::text) as "length" FROM\
-                           user_posts_post_likes AS t WHERE t.user_id=1)user_posts_likes;', [id, ])
-        posts_likes_size = cursor.fetchone()[0]
-        if posts_likes_size:
-            size += posts_likes_size
-        # messages
-        cursor.execute('select sum(length) from (\
-            SELECT octet_length(t.*::text) as "length" FROM chat_message AS t\
-            WHERE t.author_id=%s )message_sum', [id, ])
-        messages_size = cursor.fetchone()[0]
-        if messages_size:
-            size += messages_size
-
-        # images
-        images = Image.objects.filter(user_id=id)
-        for image_obj in images:
-            size += image_obj.image.size
-
-        # images additional info in DB
-        cursor.execute('select sum(length) from (\
-            SELECT octet_length(t.*::text) as "length" FROM images_image AS t\
-            WHERE t.user_id=%s)images_additional_info_sum', [id, ])
-        images_info_size = cursor.fetchone()[0]
-        if images_info_size:
-            size += images_info_size
-        # images likes
-        cursor.execute('select sum(length) from (SELECT octet_length(t.*::text) as "length" FROM\
-                           images_image_likes AS t WHERE t.user_id=1)user_images_likes;', [id, ])
-        images_likes_size = cursor.fetchone()[0]
-        if images_likes_size:
-            size += images_likes_size
-        # avatar
-        if self.avatar:
-            size += self.avatar.size
-
+        cursor.callproc('total_used_space', (id,))
+        size = cursor.fetchone()[0]
         return size
 
 
@@ -124,6 +77,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     avatar = models.ImageField(upload_to=user_avatar_path, default=None)
+    avatar_size = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
@@ -136,6 +90,8 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         app_label = 'user_profile'
 
     def save(self, *args, **kwargs):
+        if self.avatar:
+            self.avatar_size = self.avatar.size
         super().save(*args, **kwargs)
         self.create_thumbnail()
 
@@ -154,6 +110,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     def remove_avatar(self):
         os.remove(self.avatar.path)
         self.avatar = None
+        self.avatar_size = 0
         self.save()
 
     def get_thumbnail_url(self):

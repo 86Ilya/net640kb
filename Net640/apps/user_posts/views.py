@@ -23,6 +23,8 @@ def mainpage_view(request):
                 try:
                     new_post = new_post_form.save(commit=False)
                     new_post.user = request.user
+                    if new_post.image:
+                        new_post.image_size = new_post.image.size
                     new_post.save()
                 except Exception:
                     pass

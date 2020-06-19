@@ -122,7 +122,7 @@ class TestUserProfileViews(TestCase):
         self.assertIn(b'We\'ve emailed you instructions for setting your password', response.content)
         # check email for reset code
         reset_request_mail = mail.outbox[-1]
-        reset_link = re.search(r'\shttp:\/\/testserver([^\s]*)\s', reset_request_mail.body).group(1)
+        reset_link = re.search(r'\s(?:http|https):\/\/testserver([^\s]*)\s', reset_request_mail.body).group(1)
         reset_response = client.get(reset_link, follow=True)
         path, code = response.redirect_chain[0]
         # check after resetting password

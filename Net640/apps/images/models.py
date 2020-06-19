@@ -21,6 +21,7 @@ class Image(LikesMixin, models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     description = models.CharField(max_length=255, blank=True)
     image = models.ImageField(upload_to=user_directory_path)
+    image_size = models.IntegerField(default=0)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="message_likes")
 

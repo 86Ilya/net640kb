@@ -25,7 +25,7 @@ testing:
     - docker run --rm --name redis_testing --network=testing -d redis
     - docker run --rm --name user_cache --network=testing -d redis
     - docker run --rm --name=selenium --network=testing -d selenium/standalone-firefox-debug
-    - docker run --rm --name=net640kb_web_testing --network=testing -e SECRET_KEY=TESTING -e DATABASE_NAME=postgres -e DATABASE_HOST=db_testing -e DATABASE_USER=postgres -e DATABASE_PASSWORD=postgres -e REDIS_HOST=redis_testing -e REDIS_PORT=6379 -e DEPLOY_ENV=DEVELOP net640kb_web /bin/sh -c "cd /app && python manage.py makemigrations && python manage.py migrate && python manage.py test -v 2"
+    - docker run --rm --name=net640kb_web_testing --network=testing -e SECRET_KEY=TESTING -e DATABASE_NAME=postgres -e DATABASE_HOST=db_testing -e DATABASE_USER=postgres -e DATABASE_PASSWORD=postgres -e REDIS_HOST=redis_testing -e REDIS_PORT=6379 -e DEPLOY_ENV=DEVELOP net640kb_web /bin/sh -c "cd /app && python manage.py makemigrations && python manage.py migrate && test.sh"
   when: on_success
 
 clean:

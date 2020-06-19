@@ -16,6 +16,7 @@ class Post(LikesMixin, AsDictMessageMixin, models.Model):
     content = models.TextField()
     date = models.DateTimeField(default=timezone.now, blank=True)
     image = models.ImageField(upload_to=user_directory_path)
+    image_size = models.IntegerField(default=0)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, default=None, related_name="post_likes")
 
     class Meta:
