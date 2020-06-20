@@ -115,6 +115,8 @@ class TestUserUpdateForm(TestCase):
         newpatronymic = 'new patronymic'
         newbirth_date = '10.04.1986'
 
+        oldpass = self.user.password
+
         update_form = UserUpdateForm({'firstname': newfirstname,
                                       'lastname': newlastname,
                                       'patronymic': newpatronymic,
@@ -127,6 +129,7 @@ class TestUserUpdateForm(TestCase):
         self.assertEqual(self.user.firstname, newfirstname)
         self.assertEqual(self.user.lastname, newlastname)
         self.assertEqual(self.user.patronymic, newpatronymic)
+        self.assertEqual(self.user.password, oldpass)
         self.assertEqual(timezone.datetime.strftime(self.user.birth_date, DATE_FORMAT), newbirth_date)
 
     def test_update_user_avatar(self):

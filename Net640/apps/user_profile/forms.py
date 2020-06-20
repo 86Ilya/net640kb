@@ -108,7 +108,9 @@ class UserForm(CleanPasswordMixin, forms.ModelForm):
         if validation_errors:
             raise forms.ValidationError(validation_errors)
 
-        cleaned_data['password'] = make_password(cleaned_data['password'])
+        new_pass = cleaned_data['password']
+        if len(new_pass) > 0:
+            cleaned_data['password'] = make_password(new_pass)
 
         return cleaned_data
 
