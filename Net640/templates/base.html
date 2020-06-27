@@ -18,7 +18,7 @@
         <div class="row mt-1 no_link_behaviour">
             <a href={% url 'friends:my_friends' %} class="col-xs-12 col-md-4 p-3 menu__item" id="friends_main_menu_button" >Friends</a>
             <a href={% url 'posts:news' %} class="col-xs-12 col-md-4 p-3 menu__item">News</a>
-            <a href={% url 'posts:mainpage' %} class="col-xs-12 col-md-4 p-3 menu__item">My Page(<b>{{user.username}}</b>) [[user_page_size_formatted]]Kb</a>
+            <a href={% url 'posts:mainpage' %} class="col-xs-12 col-md-4 p-3 menu__item">My Page(<b>{{user.username}}</b>) [[user_page_size_formatted]]</a>
             <div class="d-none" id="initial_user_page_size">{{user.get_size}}</div>
 
         </div>

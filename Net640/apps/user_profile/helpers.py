@@ -53,6 +53,8 @@ def update_user_by_form(request, context):
     user_update_form = UserUpdateForm(request.POST, request.FILES, instance=user)
     if user_update_form.is_valid():
         user_update = user_update_form.save(commit=False)
+        if user_update.avatar:
+            user_update.avatar_size = user_update.avatar.size
         user_update.save()
         context['user'] = user_update
         valid = True

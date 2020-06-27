@@ -98,12 +98,13 @@ def profile_view_action_processing(request, action):
     status = HTTP_OK
     user = request.user
     if action == 'remove_avatar':
-        avatar_size = user.avatar.size
+        avatar_size = user.avatar_size
         user.remove_avatar()
         if avatar_size:
             # send decrement info
             user.msg_upd_page_size(-avatar_size)
             response = {'result': True, 'default_avatar_url': DEFAULT_AVATAR_URL}
+    # TODO add avatar size calc
     else:
         response = {'result': False, 'error': 'unknown action'}
         status = HTTP_BAD_REQUEST

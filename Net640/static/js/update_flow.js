@@ -51,7 +51,12 @@ function update_flow_func(){
 }
 
 function beautify_page_size(size){
-  return (size / 1024).toFixed(1);
+    if(size < 1024){
+      return size + "b"
+    }
+    else{
+      return ((size / 1024).toFixed(1)) + "Kb";
+    }
 }
 
 function new_friend_request(person, ignore_page){
