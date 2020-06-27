@@ -10,7 +10,7 @@ build:
     - net640
   script:
     - cd /home/gitlab-runner/net640kb && git pull
-    - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose.yml build
+    - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose.yml build --no-cache
   when: always
 
 
