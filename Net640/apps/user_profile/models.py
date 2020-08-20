@@ -12,8 +12,7 @@ from django.core.mail import send_mail
 from django.core.cache import cache
 
 from Net640.settings import STATIC_URL, EMAIL_HOST_USER, CACHE_TIMEOUT
-from Net640.apps.images.models import Image, user_avatar_path
-from Net640.apps.user_posts.models import Post
+from Net640.apps.images.models import user_avatar_path
 from Net640.apps.updateflow.mixin import UpdateFlowMixin
 
 
@@ -76,8 +75,8 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
     email_confirmed = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    avatar = models.ImageField(upload_to=user_avatar_path, default=None)
-    avatar_size = models.IntegerField(default=0)
+    avatar = models.ImageField(upload_to=user_avatar_path, default=None, null=True)
+    avatar_size = models.IntegerField(default=0, blank=False)
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
