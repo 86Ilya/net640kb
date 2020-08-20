@@ -1,3 +1,4 @@
+import logging
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
@@ -9,13 +10,15 @@ from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 
-from Net640.httpcodes import HTTP_BAD_REQUEST, HTTP_OK, HTTP_UNAUTHORIZED
+from Net640.httpcodes import HTTP_BAD_REQUEST, HTTP_OK, HTTP_UNAUTHORIZED, HTTP_SERVICE_UNAVAILABLE
 from Net640.apps.user_profile.helpers import base, save_user_by_form, update_user_by_form
 from Net640.apps.user_profile.forms import UserForm, UserUpdateForm
 
 from Net640.apps.user_profile.models import DEFAULT_AVATAR_URL
 from Net640.apps.user_profile.tokens import account_activation_token
 
+
+logger = logging.getLogger('user_profile')
 
 User = get_user_model()
 
@@ -56,8 +59,13 @@ def signup_view(request):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
+            try:
+                user.email_user(subject, message)
+            except Exception as error:
+                logger.error(f'[user_profile] signup error: {error}')
+                user.delete()
+                return render(request, "unknown_error.html", status=HTTP_SERVICE_UNAVAILABLE)
 
-            user.email_user(subject, message)
             return redirect('profile:account_activation_sent')
         else:
             status = HTTP_BAD_REQUEST
