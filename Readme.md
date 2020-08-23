@@ -38,7 +38,7 @@ bash deploy-develop.sh
 ```
 and exec in running web container the next command:
 ```bash
-docker exec -it net640kb_web_1 python manage.py test
+docker exec -it net640kb_web_1 test.sh
 ```
 After finishing tests you will see the number of failed and completed test cases.
 ## Built With
