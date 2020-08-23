@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.core.cache import cache
 from django.urls import reverse
 
+from Net640.settings import CACHE_TIMEOUT
 from Net640.apps.updateflow.helpers import get_updateflow_room_name
 CHANNEL_LAYER = get_channel_layer()
 
@@ -23,6 +24,17 @@ class UpdateFlowMixin:
             self.get_size()
 
         response = {'upd_user_page_size': size, 'error': False}
+        async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
+            'type': 'update_flow',
+            'message': response
+        })
+
+    def msg_recalculate_page_size(self):
+        room_name = get_updateflow_room_name(self.id)
+        size = self._get_size()
+        cache.set(self.id, size, CACHE_TIMEOUT)
+
+        response = {'user_page_size': size, 'error': False}
         async_to_sync(CHANNEL_LAYER.group_send)(room_name, {
             'type': 'update_flow',
             'message': response

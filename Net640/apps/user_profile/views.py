@@ -90,6 +90,9 @@ def profile_view(request):
             response, status = profile_view_action_processing(request, action)
             return JsonResponse(response, status=status)
         user_update_form, valid = update_user_by_form(request, context)
+        # TODO make it more elegant
+        # recalculate page size
+        context['user'].msg_recalculate_page_size()
         if not valid:
             status = HTTP_BAD_REQUEST
     else:
@@ -112,7 +115,6 @@ def profile_view_action_processing(request, action):
             # send decrement info
             user.msg_upd_page_size(-avatar_size)
             response = {'result': True, 'default_avatar_url': DEFAULT_AVATAR_URL}
-    # TODO add avatar size calc
     else:
         response = {'result': False, 'error': 'unknown action'}
         status = HTTP_BAD_REQUEST
