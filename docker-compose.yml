@@ -63,7 +63,6 @@ services:
     volumes:
       - static-content:/app/static
       - media-content:/app/media
-      - /opt/letsencrypt:/etc/letsencrypt
       - ${LOGS}/nginx:/var/www/logs
       - ./docker/nginx:/etc/nginx/conf.d
       - ./docker/uwsgi_config/:/srv/config
