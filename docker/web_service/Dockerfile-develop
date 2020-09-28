@@ -4,6 +4,8 @@ from net640ready
 WORKDIR /app
 COPY . /app
 
+RUN mkdir -p /app/logs/django
+
 RUN apt-get update
 RUN apt-get install -y python3-dev git vim mc wget telnet
 
