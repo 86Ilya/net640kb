@@ -1,8 +1,11 @@
 import os
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from Net640.settings_logging import *  # noqa: F403, F401
 
 MAX_PAGE_SIZE = 640 * 1024  # max user page size in bytes
-BYTES_IN_SYMB = 1
+BYTES_IN_SYMB = 1  # FIXME: 1 symb != 1 byte
 CACHE_TIMEOUT = 60 * 60
 FRONTEND_DATE_FORMAT = '%b %d, %Y'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +14,17 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = False
+
+# sentry configuration
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN'),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
 
 # Application definition
 
