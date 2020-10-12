@@ -1,6 +1,5 @@
 stages:
   - build
-  - test
   - clean
   - deploy
 
@@ -11,32 +10,6 @@ build:
   script:
     - cd /home/gitlab-runner/net640kb && git pull
     - cd /home/gitlab-runner/net640kb && docker-compose  -f docker-compose.yml build --no-cache
-  when: always
-
-
-testing:
-  stage: test
-  tags:
-    - net640
-  script:
-    # create instances for testing with default vars
-    - docker network create testing
-    - docker run --rm --name db_testing --network=testing -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=postgres -d postgres
-    - docker run --rm --name redis_testing --network=testing -d redis
-    - docker run --rm --name user_cache --network=testing -d redis
-    - docker run --rm --name=selenium --network=testing -d selenium/standalone-firefox-debug
-    - docker run --rm --name=net640kb_web_testing --network=testing -e SECRET_KEY=TESTING -e DATABASE_NAME=postgres -e DATABASE_HOST=db_testing -e DATABASE_USER=postgres -e DATABASE_PASSWORD=postgres -e REDIS_HOST=redis_testing -e REDIS_PORT=6379 -e DEPLOY_ENV=DEVELOP net640kb_web /bin/sh -c "cd /app && python manage.py makemigrations && python manage.py migrate && ./test.sh"
-  when: on_success
-
-clean:
-  stage: clean 
-  tags:
-    - net640
-  script:
-    # delete the test containers
-    - docker container stop db_testing redis_testing user_cache selenium
-    # delete the test network
-    - docker network rm testing
   when: always
 
 deploy:
