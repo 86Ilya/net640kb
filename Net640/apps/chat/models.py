@@ -1,5 +1,3 @@
-import asyncio
-
 from channels.layers import get_channel_layer
 
 from django.db import models
@@ -9,7 +7,6 @@ from django.utils import timezone
 from Net640.apps.user_profile.models import User
 from Net640.errors import ERR_EXCEED_LIMIT
 from Net640.settings import MAX_PAGE_SIZE
-from Net640.apps.updateflow.helpers import get_updateflow_room_name
 
 
 CHANNEL_LAYER = get_channel_layer()
@@ -38,21 +35,9 @@ class Message(models.Model):
         message_size += len(str(self.author_id))
         message_size += len(str(self.chat_room))
 
-        response = {'upd_user_page_size': message_size, 'error': False}
-
         if self.author.get_size() + message_size * 8 > MAX_PAGE_SIZE:
-            response.update({'error': True, 'error_reason': 'not enough free space'})
-
-        room_name = get_updateflow_room_name(self.author_id)
-        update_coro = CHANNEL_LAYER.group_send(room_name, {
-            'type': 'update_flow',
-            'message': response
-        })
-        event_loop = asyncio.get_event_loop()
-        asyncio.ensure_future(update_coro, loop=event_loop)
-        # raise error to prevent Message to save
-        if response['error']:
             raise Exception(ERR_EXCEED_LIMIT)
+        self.author.msg_upd_page_size(message_size)
 
         super().save(*args, **kwargs)
 

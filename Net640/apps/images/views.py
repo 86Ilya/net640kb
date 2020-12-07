@@ -4,10 +4,10 @@ import mimetypes
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_http_methods, require_POST, require_GET
+from django.views.decorators.http import require_http_methods, require_GET
 
 from Net640.apps.images.forms import ImageForm
 from Net640.apps.images.models import Image
@@ -56,28 +56,6 @@ def user_images_view(request):
         'username': master.username,
         'images': images
     })
-
-
-@login_required
-@require_POST
-def user_image_action(request):
-    context = {}
-    user = request.user
-    image_id = request.POST.get('image_id', None)
-    image = get_object_or_404(Image, id=image_id)
-    action = request.POST.get('action', None)
-
-    if action == 'like':
-        image.add_like(user)
-        context.update({"result": True, "likes": image.get_rating()})
-    if action == 'dislike':
-        image.remove_like(user)
-        context.update({"result": True, "likes": image.get_rating()})
-    if action == 'remove':
-        if user == image.user:
-            image.delete()
-            context.update({"result": True})
-    return JsonResponse(context)
 
 
 @require_GET

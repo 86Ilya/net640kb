@@ -17,6 +17,14 @@ services:
        - EMAIL_HOST_USER=${EMAIL_HOST_USER}
        - EMAIL_HOST=${EMAIL_HOST}
        - DEPLOY_ENV=${DEPLOY_ENV}
+       - SENTRY_DSN=${SENTRY_DSN}
+       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+       - MAX_NUMBER_OF_MESSAGES=${MAX_NUMBER_OF_MESSAGES}
+       - VISIBILITY_TIMEOUT=${VISIBILITY_TIMEOUT}
+       - WAIT_TIME_SECONDS=${WAIT_TIME_SECONDS}
+       - SQS_SYNC_ASYNC_EXCHANGE_QUEUE_URL=${SQS_SYNC_ASYNC_EXCHANGE_QUEUE_URL}
   db:
     image: postgres
     ports:
@@ -42,6 +50,8 @@ services:
     command: /app/docker/web_service/start_uwsgi.sh
     volumes:
     - ./Net640/apps:/app/Net640/apps
+    - ./Net640/api:/app/Net640/api
+    - ./Net640/settings.py:/app/Net640/settings.py
     - ${LOGS}/django:/app/logs/django
     - static-content:/app/static/
     - media-content:/app/media/
@@ -55,6 +65,7 @@ services:
     volumes:
     - ./Net640/apps:/app/Net640/apps
     - ${LOGS}/daphne:/app/logs/django/
+    - media-content:/app/media/
     depends_on:
       - db
       - redis
@@ -80,4 +91,12 @@ services:
 
 volumes:
     static-content:
+      driver_opts:
+        type: none
+        o: bind
+        device: $PWD/dev-docker-static/
     media-content:
+      driver_opts:
+        type: none
+        o: bind
+        device: $PWD/dev-docker-media/

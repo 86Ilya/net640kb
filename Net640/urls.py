@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include, re_path
 from Net640.settings import MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATIC_ROOT
 from django.conf.urls.static import static
@@ -19,19 +18,12 @@ media_url = [
 ]
 
 
-# for sentry debug
-def trigger_error(request):
-    1 / 0
-
-
 urlpatterns = [
     path('', include('Net640.apps.user_posts.urls', namespace='posts')),
     path('user/', include('Net640.apps.user_profile.urls', namespace='profile')),
     path('friends/', include('Net640.apps.friends.urls', namespace='friends')),
     path('chat/', include('Net640.apps.chat.urls', namespace='chat')),
     path('images/', include('Net640.apps.images.urls', namespace='images')),
-    path('admin/', admin.site.urls),
-    path('sentry-debug/', trigger_error),
 ] + media_url
 
 if DEBUG:

@@ -3,17 +3,16 @@ import logging
 from PIL import Image as ImagePic
 from channels.layers import get_channel_layer
 
-from django.db import models, connection
+from django.db import models
 from django.shortcuts import reverse
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
-from django.core.cache import cache
 
-from Net640.settings import STATIC_URL, EMAIL_HOST_USER, CACHE_TIMEOUT
+from Net640.settings import STATIC_URL, EMAIL_HOST_USER
 from Net640.apps.images.models import user_avatar_path
-from Net640.apps.updateflow.mixin import UpdateFlowMixin
+from Net640.apps.user_profile.mixin import GetSizeMixin, SendMessagesToFrontEndMixin
 
 
 DEFAULT_AVATAR_URL = os.path.join(STATIC_URL, 'img', 'default_avatar.png')
@@ -34,34 +33,7 @@ RELATIONSHIP_STATUSES = (
 CHANNEL_LAYER = get_channel_layer()
 
 
-class GetSizeMixin:
-    """
-    Class helper to calculate size of User data
-    """
-
-    def __cache(func):
-        def wrapper(self, *args, **kwargs):
-            var = cache.get(self.id)
-            if var is None:
-                var = func(self, *args, **kwargs)
-                cache.set(self.id, var, CACHE_TIMEOUT)
-            return var
-        return wrapper
-
-    @__cache
-    def get_size(self):
-        return self._get_size()
-
-    def _get_size(self):
-        size = 0
-        id = self.id
-        cursor = connection.cursor()
-        cursor.callproc('total_used_space', (id,))
-        size = cursor.fetchone()[0]
-        return size
-
-
-class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
+class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, SendMessagesToFrontEndMixin):
     username = models.CharField(_('username'), unique=True, max_length=120, null=True)
     email = models.EmailField(_('email address'), max_length=256, unique=True)
     firstname = models.CharField(_('first name'), max_length=120, null=True)
@@ -152,7 +124,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         return current_status
 
     def accept_request_for_relationship(self, person):
-        # TODO make it cleaner
+        # TODO: make it cleaner
         # remove old relationships
         self.remove_relationship(person, RELATIONSHIP_WAITING_FOR_ACCEPT, False)
         self.remove_relationship(person, RELATIONSHIP_REQUEST_HAS_SENT, False)
@@ -204,7 +176,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
         return self.check_relationship(person)
 
     def check_relationship(self, person):
-        # TODO временно так!
+        # TODO: временно так!
         result = Relationship.objects.filter(
             from_person=self,
             to_person=person)
@@ -263,7 +235,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             elif relationship == RELATIONSHIP_FRIENDS:
                 relationship_upd = self.remove_relationship(person, RELATIONSHIP_FRIENDS)
                 success = True
-        # TODO broad exception
+        # TODO: broad exception
         except Exception as error:
             logging.error(error)
 
@@ -283,7 +255,7 @@ class User(AbstractBaseUser, PermissionsMixin, GetSizeMixin, UpdateFlowMixin):
             elif relationship == NO_RELATIONSHIP:
                 relationship_upd = self.send_request_for_relationship(person)
                 success = True
-        # TODO broad exception
+        # TODO: broad exception
         except Exception as error:
             logging.error(error)
 

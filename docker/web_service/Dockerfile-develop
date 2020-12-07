@@ -1,15 +1,7 @@
 #from python:3.7
-from net640ready
+from net640ready_develop
 
 WORKDIR /app
 COPY . /app
 
 RUN mkdir -p /app/logs/django
-
-RUN apt-get update
-RUN apt-get install -y python3-dev git vim mc wget telnet
-
-RUN pip install -r requirements-develop.txt
-RUN pip install channels==2.2.0
-RUN pip install channels-redis==2.4.0
-RUN cd /usr/local/bin && wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz && tar xvf geckodriver-v0.26.0-linux64.tar.gz

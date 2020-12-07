@@ -27,18 +27,18 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="vue_image_processing">
     {% if images|length > 0 %}
       {% for image in images %}
         <div class="row mt-3 text-center">
           <img src="{{image.url}}" alt="{{image.description}}" class="col-10 mx-auto">
-          <div class="col-1"><i class="far fa-trash-alt" data-action='remove' data-action-url="{% url 'images:user_image_action' %}" data-image-id="{{ image.id }}"></i></div>
+          <div class="col-1"><i class="far fa-trash-alt" data-action='remove' data-image-id="{{ image.id }}"></i></div>
           <div class="col-1">
             <div class="badge badge-dark">{{ image.rating | floatformat:1}}</div>
             {% if image.user_has_like %}
-            <i class="fas fa-heart" data-action='dislike' data-action-url="{% url 'images:user_image_action' %}" data-image-id="{{ image.id }}"></i>
+            <i class="fas fa-heart" data-action='dislike' data-image-id="{{ image.id }}"></i>
             {% else %}
-            <i class="far fa-heart" data-action='like' data-action-url="{% url 'images:user_image_action' %}" data-image-id="{{ image.id }}"></i>
+            <i class="far fa-heart" data-action='like' data-image-id="{{ image.id }}"></i>
             {% endif %}
           </div>
         </div>
@@ -52,7 +52,7 @@
 
 {% block scripts %}
 {% load static %}
-<script type="text/javascript" src='{% static 'js/basic_func.js' %}'></script>
-<script type="text/javascript" src='{% static 'images/js/user_image_actions.js' %}'></script>
-<script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
+    <script type="text/javascript" src='{% static 'js/basic_func.js' %}'></script>
+    <script type="module" src='{% static 'images/js/user_image_actions.js' %}'></script>
+    <script type="text/javascript" src='{% static 'js/preview_image.js' %}'></script>
 {% endblock %}

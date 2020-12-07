@@ -6,7 +6,7 @@ __pycache__
 *.develop
 clean.sh
 *.swp
-commit_message
+.commit_message
 env
 .venv
 node_modules

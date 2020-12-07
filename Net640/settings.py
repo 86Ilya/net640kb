@@ -1,5 +1,5 @@
-import os
 import sentry_sdk
+import os
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from Net640.settings_logging import *  # noqa: F403, F401
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'Net640.apps.chat',
     'Net640.apps.images',
     'Net640.apps.user_posts',
-    'Net640.apps.updateflow',
+    'Net640.apps.ws_eventbus',
 ]
 
 MIDDLEWARE = [
@@ -124,6 +124,21 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# SQS
+SQS_SYNC_ASYNC_EXCHANGE_QUEUE_URL = os.environ.get('SQS_SYNC_ASYNC_EXCHANGE_QUEUE_URL')
+SQS_ENDPOINT = "https://message-queue.api.cloud.yandex.net/"
+
+MAX_NUMBER_OF_MESSAGES = os.environ.get('MAX_NUMBER_OF_MESSAGES')
+VISIBILITY_TIMEOUT = os.environ.get('VISIBILITY_TIMEOUT')
+WAIT_TIME_SECONDS = os.environ.get('WAIT_TIME_SECONDS')
+
+SQS_RECV_PARAMS = {'AttributeNames': ['All'],
+                   'MaxNumberOfMessages': int(MAX_NUMBER_OF_MESSAGES),
+                   'MessageAttributeNames': ['All'],
+                   'VisibilityTimeout': int(VISIBILITY_TIMEOUT),
+                   'WaitTimeSeconds': int(WAIT_TIME_SECONDS),
+                   }
 
 # Internationalization
 
