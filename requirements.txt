@@ -9,7 +9,7 @@ certifi==2019.3.9
 chardet==3.0.4
 constantly==15.1.0
 daphne==2.3.0
-Django==2.2.13
+Django==2.2.20
 hiredis==1.0.0
 hyperlink==19.0.0
 idna==2.8
